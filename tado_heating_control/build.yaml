@@ -11,5 +11,5 @@ build_from:
   #armv7: ghcr.io/hassio-addons/debian-base/armv7:stable
   #i386: ghcr.io/hassio-addons/debian-base/i386:stable
 codenotary:
-  base_image: tdlj@tdlj.net
-  signer: tdlj@tdlj.net
+  base_image: m.chester@me.com
+  signer: m.chester@me.com

@@ -1,7 +1,7 @@
 ---
 name: Tado Heating Control
-version: 1.0.0
-slug: app
+version: 1.0.1
+slug: tado_heating_control
 description: Home Battery Prediction and Control
 url: https://github.com/charlie-chester/tado_heating_control
 codenotary: m.chester@me.com

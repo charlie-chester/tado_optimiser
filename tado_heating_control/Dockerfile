@@ -18,7 +18,7 @@ COPY rootfs /
 COPY requirements.txt /tmp/
 RUN pip install -r /tmp/requirements.txt
 
-# Start app
+# Start tado_heating_control
 RUN chmod a+x /run.sh
 
 ARG BUILD_ARCH

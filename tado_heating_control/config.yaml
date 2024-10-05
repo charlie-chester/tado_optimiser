@@ -1,9 +1,9 @@
 ---
-name: Tado Heating Control
+name: Tado Optimizer
 version: 1.0.0
-slug: tado_heating_control
+slug: tado_optimizer
 description: Home Battery Prediction and Control
-url: https://github.com/charlie-chester/tado_heating_control
+url: https://github.com/charlie-chester/tado_optimizer
 codenotary: m.chester@me.com
 ingress: True
 ingress_port: 5052

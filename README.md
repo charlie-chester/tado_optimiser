@@ -1,4 +1,4 @@
-#  Tado Heating Control
-Tado Heating Control Add-on
+#  Tado Optimizer
+Tado Optimizer Add-on
 
-This add-on can be used with Home Assistant to run Tado Heating Control
+This add-on can be used with Home Assistant to run Tado Optimizer

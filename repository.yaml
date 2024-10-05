@@ -1,0 +1,4 @@
+# https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
+name: Tado Heating Control add-on
+url: 'https://github.com/charlie-chester/tado_heating_control'
+maintainer: Charlie Chester <m.chester@me.com>

@@ -1,0 +1,31 @@
+---
+name: Tado Heating Control
+version: 1.2.1
+slug: app
+description: Home Battery Prediction and Control
+url: https://github.com/charlie-chester/tado_heating_control
+codenotary: m.chester@me.com
+ingress: True
+ingress_port: 5052
+ingress_root: "/"
+arch:
+  - aarch64
+  - amd64
+  - armv7
+init: false
+homeassistant_api: true
+hassio_api: true
+hassio_role: admin
+auth_api: true
+map:
+  - addon_config:rw
+  - homeassistant_config:rw
+  - media:rw
+  - share:rw
+  - ssl
+options:
+  dummy: []
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  dummy:
+    - str

@@ -31,14 +31,4 @@ schema:
   longitude: str
   latitude: str
   open_weather_api: str
-  log_level:
-    type: str
-    default: "info"
-    enum:
-      - trace
-      - debug
-      - info
-      - notice
-      - warning
-      - error
-      - fatal
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?

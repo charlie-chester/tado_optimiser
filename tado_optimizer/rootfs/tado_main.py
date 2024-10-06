@@ -23,15 +23,12 @@ logging.info(msg=f"The latitude is {LATITUDE}")
 logging.info(msg=f"The longitude is {LONGITUDE}")
 logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API_KEY}")
 
-weather.get_weather_data()
 
-# def main():
-#     weather.get_weather_data()
-#
-# main()
-#
-# schedule.every(15).minutes.do(main)
-#
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
+def main():
+    weather.get_weather_data()
+
+schedule.every(1).minutes.do(main)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)

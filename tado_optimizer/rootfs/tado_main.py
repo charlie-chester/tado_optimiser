@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(
 logging.info(msg="Tado Optimizer starting")
 
 # Path to the options.yaml file
-options_file = "/data/options.yaml"
+options_file = "/data/options.json"
 
 # Read the YAML configuration
 with open(options_file, "r") as file:

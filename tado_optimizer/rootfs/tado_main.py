@@ -4,6 +4,8 @@ import schedule
 import time
 from weather_api import WeatherAPI
 
+time.sleep(10)
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s : %(levelname)s : %(filename)s - %(lineno)d : %(message)s",datefmt="%Y-%m-%d %H:%M:%S")
 logging.info(msg="Tado Optimizer starting")

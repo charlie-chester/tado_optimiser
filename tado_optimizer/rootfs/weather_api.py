@@ -2,8 +2,6 @@ import logging
 import yaml
 import requests
 
-BASE_URL = "https://api.openweathermap.org/data/3.0/onecall?"
-
 # Access options file and obtain variables
 options_file = "/data/options.json"
 with open(options_file, "r") as file:
@@ -11,12 +9,13 @@ with open(options_file, "r") as file:
 
 class WeatherAPI:
     def __init__(self):
+        self.base_url = "https://api.openweathermap.org/data/3.0/onecall?"
+        self.api_key = options.get("open_weather_api")
         self.latitude = options.get("latitude")
         self.longitude = options.get("longitude")
-        self.api_key = options.get("open_weather_api")
 
     def get_weather_data(self):
-        fullUrl = f"{BASE_URL}lat={self.latitude}&lon={self.longitude}&appid={self.api_key}&units=metric"
+        fullUrl = f"{self.base_url}lat={self.latitude}&lon={self.longitude}&appid={self.api_key}&units=metric"
         data = requests.get(fullUrl)
         status = data.status_code
         logging.info(msg="Getting weather data")

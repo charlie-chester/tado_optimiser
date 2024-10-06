@@ -2,7 +2,9 @@ import logging
 import time
 import datetime
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="logfile.log", level=logging.INFO,
+                    format="%(asctime)s : %(levelname)s : %(filename)s line %(lineno)d : %(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S")
 
 logging.info(msg="Tado Optimizer starting")
 

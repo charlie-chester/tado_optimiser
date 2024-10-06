@@ -28,7 +28,7 @@ def main():
 
 main()
 
-for minute in [":00:05", ":15", ":30", ":45"]:
+for minute in [":00:05", ":15:00", ":30:00", ":45:00"]:
     schedule.every().hour.at(minute).do(main)
 
 while True:

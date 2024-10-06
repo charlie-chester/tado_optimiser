@@ -12,17 +12,14 @@ with open(options_file, "r") as file:
 
 log_level = options.get("log_level", "INFO").upper()
 logging.basicConfig(level=getattr(logging, log_level),
-                    format="%(asctime)s : %(levelname)s : %(filename)s - %(lineno)d : %(message)s",
+                    format="%(asctime)s : %(levelname)s : %(filename)s line %(lineno)d : %(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")
 
 logging.info(msg="Tado Optimizer starting")
 
-LONGITUDE = options.get("longitude")
-LATITUDE = options.get("latitude")
-OPEN_WEATHER_API_KEY = options.get("open_weather_api")
-logging.info(msg=f"The latitude is {LATITUDE}")
-logging.info(msg=f"The longitude is {LONGITUDE}")
-logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API_KEY}")
+logging.info(msg=f"The latitude is {options.get('latitude')}")
+logging.info(msg=f"The longitude is {options.get('longitude')}")
+logging.info(msg=f"The Open Weather API Key is {options.get('open_weather_api')}")
 
 weather = WeatherAPI()
 

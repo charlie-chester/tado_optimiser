@@ -20,7 +20,7 @@ class WeatherAPI:
         data = requests.get(fullUrl)
         status = data.status_code
         logging.info(msg="Getting weather data")
-        logging.info(msg=f"Get weather data fullUrl: {fullUrl}")
+        logging.debug(msg=f"Get weather data fullUrl: {fullUrl}")
         logging.info(msg=f"Weather API status code: {status}")
         return data.json()
 

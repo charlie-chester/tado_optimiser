@@ -7,7 +7,8 @@ from weather_api import WeatherAPI
 time.sleep(10)
 weather = WeatherAPI()
 
-logging.basicConfig(format="%(asctime)s : %(levelname)s : %(filename)s - %(lineno)d : %(message)s",datefmt="%Y-%m-%d %H:%M:%S")
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s : %(levelname)s : %(filename)s - %(lineno)d : %(message)s",datefmt="%Y-%m-%d %H:%M:%S")
 logging.info(msg="Tado Optimizer starting")
 
 # Access options file and obtain variables

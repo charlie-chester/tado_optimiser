@@ -12,7 +12,7 @@ with open(options_file, "r") as file:
 
 log_level = options.get("log_level", "INFO").upper()
 logging.basicConfig(level=getattr(logging, log_level),
-                    format="%(asctime)s : %(levelname)s : %(filename)s line %(lineno)d : %(message)s",
+                    format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d : %(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")
 
 logging.info(msg="Tado Optimizer starting")

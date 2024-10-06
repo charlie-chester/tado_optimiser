@@ -28,9 +28,8 @@ def main():
 
 main()
 
-if __name__ == "__main__":
-    schedule.every(15).minutes.do(main)
+schedule.every(15).minutes.do(main)
 
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+while True:
+    schedule.run_pending()
+    time.sleep(1)

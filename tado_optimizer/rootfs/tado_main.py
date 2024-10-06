@@ -5,6 +5,7 @@ import time
 from weather_api import WeatherAPI
 
 time.sleep(10)
+weather = WeatherAPI()
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s : %(levelname)s : %(filename)s - %(lineno)d : %(message)s",datefmt="%Y-%m-%d %H:%M:%S")
@@ -19,8 +20,6 @@ LONGITUDE = options.get("longitude")
 LATITUDE = options.get("latitude")
 OPEN_WEATHER_API_KEY = options.get("open_weather_api")
 
-weather = WeatherAPI()
-
 logging.info(msg=f"The latitude is {LATITUDE}")
 logging.info(msg=f"The longitude is {LONGITUDE}")
 logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API_KEY}")
@@ -28,6 +27,8 @@ logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API_KEY}")
 
 def main():
     weather.get_weather_data()
+
+main()
 
 schedule.every(1).minutes.do(main)
 

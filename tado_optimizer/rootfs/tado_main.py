@@ -10,7 +10,7 @@ options_file = "/data/options.json"
 with open(options_file, "r") as file:
     options = yaml.safe_load(file)
 
-log_level = options.get('log_level', 'INFO').upper()
+log_level = options.get("log_level", "INFO").upper()
 logging.basicConfig(level=getattr(logging, log_level),
                     format="%(asctime)s : %(levelname)s : %(filename)s - %(lineno)d : %(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")

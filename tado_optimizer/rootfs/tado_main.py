@@ -1,11 +1,9 @@
 import logging
 import os
-import time
-import datetime
 
 LONGITUDE = os.getenv("HASSIO_LONGITUDE")
 LATITUDE = os.getenv("HASSIO_LATITUDE")
-OPEN_WEATHER_API_KEY = os.getenv("OPEN_WEATHER_API_KEY")
+OPEN_WEATHER_API_KEY = os.getenv("HASSIO_OPEN_WEATHER_API_KEY")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(filename)s line %(lineno)d : %(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")

@@ -1,6 +1,6 @@
 ---
 name: Tado Optimizer
-version: 1.0.0
+version: 1.0.1
 slug: tado_optimizer
 description: Home Battery Prediction and Control
 url: https://github.com/charlie-chester/tado_optimizer
@@ -31,4 +31,14 @@ schema:
   longitude: str
   latitude: str
   open_weather_api: str
-log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  log_level:
+    type: str
+    default: "info"
+    values:
+      - trace
+      - debug
+      - info
+      - notice
+      - warning
+      - error
+      - fatal

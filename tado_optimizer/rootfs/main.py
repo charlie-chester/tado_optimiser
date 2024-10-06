@@ -28,7 +28,8 @@ def main():
 
 main()
 
-schedule.every(1).minutes.do(main)
+for minute in [":00", ":15", ":30", ":45"]:
+    schedule.every().hour.at(minute).do(main)
 
 while True:
     schedule.run_pending()

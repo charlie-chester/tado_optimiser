@@ -19,8 +19,7 @@ OPEN_WEATHER_API_KEY = options.get("open_weather_api")
 
 
 
-
-logging.info(f"The longitude is {LONGITUDE}")
 logging.info(f"The latitude is {LATITUDE}")
+logging.info(f"The longitude is {LONGITUDE}")
 logging.info(f"The Open Weather API Key is {OPEN_WEATHER_API_KEY}")
 

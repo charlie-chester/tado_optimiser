@@ -1,6 +1,6 @@
 ---
 name: Tado Optimizer
-version: 1.0.11
+version: 1.0.12
 slug: tado_optimizer
 description: Home Battery Prediction and Control
 url: https://github.com/charlie-chester/tado_optimizer

@@ -1,5 +1,4 @@
 import logging
-import os
 import yaml
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(filename)s line %(lineno)d : %(message)s",
@@ -24,5 +23,4 @@ OPEN_WEATHER_API_KEY = options.get("open_weather_api")
 logging.info(f"The longitude is {LONGITUDE}")
 logging.info(f"The latitude is {LATITUDE}")
 logging.info(f"The Open Weather API Key is {OPEN_WEATHER_API_KEY}")
-
 

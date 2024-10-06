@@ -1,5 +1,7 @@
 import logging
 import yaml
+import schedule
+import time
 from weather_api import WeatherAPI
 
 logging.basicConfig(
@@ -21,4 +23,14 @@ logging.info(msg=f"The latitude is {LATITUDE}")
 logging.info(msg=f"The longitude is {LONGITUDE}")
 logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API_KEY}")
 
-weather.get_weather_data()
+def main():
+    weather.get_weather_data()
+
+main()
+
+if __name__ == "__main__":
+    schedule.every(15).minutes.do(main)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)

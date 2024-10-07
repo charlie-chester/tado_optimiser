@@ -17,4 +17,4 @@ class WeatherAPI:
         logging.info(msg=f"Weather API status code: {status}")
         return data.json()
 
-
+# Gone back

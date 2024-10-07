@@ -10,16 +10,18 @@ options_file = "/data/options.json"
 with open(options_file, "r") as file:
     options = yaml.safe_load(file)
 
-log_level = options.get("log_level", "INFO")
-logging.basicConfig(level=getattr(logging, log_level),
+LOG_LEVEL = options.get("log_level", "INFO")
+LATITUDE = options.get("latitude")
+LONGITUDE = options.get("longitude")
+OPEN_WEATHER_API = options.get("open_weather_api")
+
+logging.basicConfig(level=getattr(logging, LOG_LEVEL),
                     format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")
 
 logging.info(msg="Tado Optimizer starting")
 
-LATITUDE = options.get("latitude")
-LONGITUDE = options.get("longitude")
-OPEN_WEATHER_API = options.get("open_weather_api")
+
 
 logging.info(msg=f"The latitude is {LATITUDE}")
 logging.info(msg=f"The longitude is {LONGITUDE}")

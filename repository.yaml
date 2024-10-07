@@ -1,4 +1,4 @@
 # https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
-name: Tado Optimizer add-on
-url: 'https://github.com/charlie-chester/tado_optimizer'
+name: Tado Optimiser add-on
+url: 'https://github.com/charlie-chester/tado_optimiser'
 maintainer: Charlie Chester <m.chester@me.com>

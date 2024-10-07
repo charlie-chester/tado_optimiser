@@ -1,5 +1,5 @@
-#  Tado Optimizer
-Tado Optimizer Add-on
+#  Tado Optimiser
+Tado Optimiser Add-on
 
 This addon is purely for my testing only. It won't work with anyone else as yet. 
 

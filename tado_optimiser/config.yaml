@@ -1,8 +1,8 @@
 ---
-name: Tado Optimizer
+name: Tado Optimiser
 version: 1.0.26
-slug: tado_optimizer
-description: Tado Optimizer
+slug: tado_optimiser
+description: Tado Optimiser
 url: https://github.com/charlie-chester/tado_optimizer
 codenotary: m.chester@me.com
 ingress: True

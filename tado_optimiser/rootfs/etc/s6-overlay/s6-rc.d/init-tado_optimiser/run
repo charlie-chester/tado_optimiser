@@ -5,5 +5,5 @@
 # Example init script, runs before any other service
 # ==============================================================================
 
-bashio::log.info "Tado Optimizer init script running"
+bashio::log.info "Tado Optimiser init script running"
 exec /run.sh

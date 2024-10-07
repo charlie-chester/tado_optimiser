@@ -10,6 +10,7 @@ class HomeAssistantAPI:
         self.headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
 
     def update_entity(self, sensor, payload):
+        logging.info(msg=f"Updating entity: {sensor}")
         fullUrl = f"{self.base_url}{sensor}"
         response = requests.post(fullUrl, headers=self.headers, json=payload)
         logging.info(msg=f"Status code: {response.status_code}")

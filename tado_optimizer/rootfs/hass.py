@@ -34,7 +34,7 @@ class HomeAssistantAPI:
         logging.info(msg=f"Updating entity: {sensor}")
         fullUrl = f"{self.base_url}{sensor}"
         response = requests.post(fullUrl, headers=self.headers, json=payload)
-        logging.info(msg=f"Status code: {response.status_code}")
+        logging.debug(msg=f"Status code: {response.status_code}")
 
         if response.status_code == 201:
             logging.info(msg=f"New entity successfully created: {sensor}")

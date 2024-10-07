@@ -33,7 +33,6 @@ hass = HomeAssistantAPI(token=TOKEN)
 
 
 def main():
-    hass.wait_for_ha_startup()
     weather.get_weather_data()
 
     now = datetime.now().strftime("%H:%M:%S")

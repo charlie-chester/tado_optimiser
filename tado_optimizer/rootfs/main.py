@@ -17,11 +17,15 @@ logging.basicConfig(level=getattr(logging, log_level),
 
 logging.info(msg="Tado Optimizer starting")
 
-logging.info(msg=f"The latitude is {options.get('latitude')}")
-logging.info(msg=f"The longitude is {options.get('longitude')}")
-logging.info(msg=f"The Open Weather API Key is {options.get('open_weather_api')}")
+LATITUDE = options.get("latitude")
+LONGITUDE = options.get("longitude")
+OPEN_WEATHER_API = options.get("open_weather_api")
 
-weather = WeatherAPI()
+logging.info(msg=f"The latitude is {LATITUDE}")
+logging.info(msg=f"The longitude is {LONGITUDE}")
+logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API}")
+
+weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
 
 def main():
     weather.get_weather_data()

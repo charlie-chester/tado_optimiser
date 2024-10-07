@@ -5,7 +5,7 @@ import requests
 class HomeAssistantAPI:
     def __init__(self, token):
         self.token = token
-        self.base_url = "http://homeassistant.local:8123"
+        self.base_url = "http://supervisor/core/api/states"
         self.headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
 
     def update_entity(self, sensor, payload):

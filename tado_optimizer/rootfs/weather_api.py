@@ -14,12 +14,13 @@ class WeatherAPI:
         self.weather_data = {}
 
     def get_weather_data(self):
-        fullUrl = f"{self.base_url}lat={self.latitude}&lon={self.longitude}&appid={self.api_key}&units=metric"
-        self.weather_data = requests.get(fullUrl).json()
-        status = self.weather_data.status_code
         logging.info(msg="Getting weather data")
+        fullUrl = f"{self.base_url}lat={self.latitude}&lon={self.longitude}&appid={self.api_key}&units=metric"
         logging.debug(msg=f"Get weather data fullUrl: {fullUrl}")
+        response = requests.get(fullUrl)
+        status = response.status_code
         logging.info(msg=f"Weather API status code: {status}")
+        self.weather_data = response.json()
 
     def sample_update(self):
         now = datetime.now().strftime("%H:%M:%S")

@@ -7,7 +7,7 @@ import schedule
 from weather_api import WeatherAPI
 from hass import HomeAssistantAPI
 
-time.sleep(60)
+time.sleep(10)
 
 options_file = "/data/options.json"
 with open(options_file, "r") as file:

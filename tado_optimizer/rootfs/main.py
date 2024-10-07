@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import time
@@ -9,20 +10,15 @@ from hass import HomeAssistantAPI
 
 time.sleep(10)
 
-options_addon = "/data/options.json"
-with open(options_addon, "r") as file:
-    addon_options = yaml.safe_load(file)
+options_file = "/data/options.json"
+with open(options_file, "r") as file:
+    options = yaml.safe_load(file)
 
-LOG_LEVEL = addon_options.get("log_level", "INFO")
-LATITUDE = addon_options.get("latitude")
-LONGITUDE = addon_options.get("longitude")
-OPEN_WEATHER_API = addon_options.get("open_weather_api")
-
-options_supervisor = "/data/auth.json"
-with (open(options_supervisor, "r") as file):
-    supervisor_options = json.load(file)
-
-TOKEN = supervisor_options.get("access_token")
+LOG_LEVEL = options.get("log_level", "INFO")
+LATITUDE = options.get("latitude")
+LONGITUDE = options.get("longitude")
+OPEN_WEATHER_API = options.get("open_weather_api")
+TOKEN = os.getenv("SUPERVISOR_TOKEN")
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL),
                     format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s",

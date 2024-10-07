@@ -20,4 +20,3 @@ class HomeAssistantAPI:
             logging.info(msg=f"Entity successfully updated: {sensor}")
         else:
             logging.error(msg=f"Error updating entity: {sensor}")
-

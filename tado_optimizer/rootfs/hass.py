@@ -10,10 +10,10 @@ class HomeAssistantAPI:
         self.headers = headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
 
     def wait_for_ha_startup(self):
-        url = "http://supervisor/core/api/events/homeassistant_started"
+        logging.info("Checking that Home Assistant to started...")
         while True:
             try:
-                data = requests.get(url, headers=self.headers)
+                data = requests.get(self.base_url, headers=self.headers)
                 if data.status_code == 200:
                     logging.info("Home Assistant started event received.")
                     break

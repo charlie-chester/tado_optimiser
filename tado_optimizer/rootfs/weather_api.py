@@ -3,7 +3,7 @@ import requests
 from datetime import datetime
 from hass import HomeAssistantAPI
 
-hass = HomeAssistantAPI()
+home_assistant = HomeAssistantAPI()
 
 def convert_time(unix_time):
     readable_time = datetime.fromtimestamp(unix_time)
@@ -46,4 +46,4 @@ class WeatherAPI:
             }
         }
 
-        hass.update_entity(sensor, payload)
+        home_assistant.update_entity(sensor, payload)

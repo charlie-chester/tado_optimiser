@@ -16,5 +16,3 @@ class WeatherAPI:
         logging.debug(msg=f"Get weather data fullUrl: {fullUrl}")
         logging.info(msg=f"Weather API status code: {status}")
         return data.json()
-
-# Gone back

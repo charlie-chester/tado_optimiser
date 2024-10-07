@@ -21,4 +21,3 @@ class HomeAssistantAPI:
         else:
             logging.error(msg=f"Error updating entity: {sensor}")
 
-# Gone back

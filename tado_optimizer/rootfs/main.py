@@ -5,7 +5,6 @@ from datetime import datetime
 import yaml
 import schedule
 from weather_api import WeatherAPI
-from hass import HomeAssistantAPI
 
 time.sleep(10)
 
@@ -31,27 +30,10 @@ logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API}")
 logging.info(msg=f"The Home Assistant Token is {TOKEN}")
 
 weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
-hass = HomeAssistantAPI()
 
 def main():
     weather.get_weather_data()
-
-    now = datetime.now().strftime("%H:%M:%S")
-    sensor = "sensor.tado_optimizer_custom_sensor_1"
-    payload = {
-        "state": now,
-        "attributes": {
-            "unit_of_measurement": "Time",
-            "friendly_name": "Tado Optimizer 1",
-            "icon": "mdi:thermometer",
-            "rain": "10mm",  # Example value; adjust as necessary
-            "snow": "none",  # Example value; adjust as necessary
-            "humidity": "78%"  # Example value; adjust as necessary
-        }
-    }
-
-    hass.update_entity(sensor, payload)
-
+    weather.sample_update()
 
 main()
 

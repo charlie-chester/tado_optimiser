@@ -36,12 +36,12 @@ def main():
     weather.get_weather_data()
 
     now = datetime.now().strftime("%H:%M:%S")
-    sensor = "sensor.charlies_custom_sensor"
+    sensor = "sensor.tado_optimizer_custom_sensor_1"
     payload = {
         "state": now,
         "attributes": {
-            "unit_of_measurement": "°C",
-            "friendly_name": "My Custom Sensor",
+            "unit_of_measurement": "Time",
+            "friendly_name": "Tado Optimizer 1",
             "icon": "mdi:thermometer"
         }
     }

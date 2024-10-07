@@ -7,7 +7,6 @@ class HomeAssistantAPI:
     def __init__(self, token):
         self.token = token
         self.base_url = "http://homeassistant.local:8123"
-        self.api_endpoint = "/api/states"
         self.headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
 
     def wait_for_ha_startup(self, poll_interval=5):
@@ -19,7 +18,7 @@ class HomeAssistantAPI:
 
     def _is_ha_fully_started(self):
         try:
-            response = requests.get(f"{self.base_url}{self.api_endpoint}", headers=self.headers)
+            response = requests.get(f"{self.base_url}/api/states", headers=self.headers)
             response.raise_for_status()
             states = response.json()
 

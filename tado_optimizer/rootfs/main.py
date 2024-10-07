@@ -1,8 +1,11 @@
 import logging
+from datetime import datetime
+
 import yaml
 import schedule
 import time
 from weather_api import WeatherAPI
+from hass import HomeAssistantAPI
 
 time.sleep(10)
 
@@ -14,6 +17,7 @@ LOG_LEVEL = options.get("log_level", "INFO")
 LATITUDE = options.get("latitude")
 LONGITUDE = options.get("longitude")
 OPEN_WEATHER_API = options.get("open_weather_api")
+TOKEN = options.get("token")
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL),
                     format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s",
@@ -21,16 +25,29 @@ logging.basicConfig(level=getattr(logging, LOG_LEVEL),
 
 logging.info(msg="Tado Optimizer starting")
 
-
-
 logging.info(msg=f"The latitude is {LATITUDE}")
 logging.info(msg=f"The longitude is {LONGITUDE}")
 logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API}")
 
 weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
+hass = HomeAssistantAPI(token=TOKEN)
 
 def main():
     weather.get_weather_data()
+
+    now = datetime.now().strftime("%H:%M:%S")
+    sensor = "sensor.charlies_custom_sensor"
+    payload = {
+        "state": now,
+        "attributes": {
+            "unit_of_measurement": "°C",
+            "friendly_name": "My Custom Sensor",
+            "icon": "mdi:thermometer"
+        }
+    }
+
+    hass.update_entity(sensor, payload)
+
 
 main()
 

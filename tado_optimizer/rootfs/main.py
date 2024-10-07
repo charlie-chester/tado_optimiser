@@ -43,7 +43,10 @@ def main():
         "attributes": {
             "unit_of_measurement": "Time",
             "friendly_name": "Tado Optimizer 1",
-            "icon": "mdi:thermometer"
+            "icon": "mdi:thermometer",
+            "rain": "10mm",  # Example value; adjust as necessary
+            "snow": "none",  # Example value; adjust as necessary
+            "humidity": "78%"  # Example value; adjust as necessary
         }
     }
 

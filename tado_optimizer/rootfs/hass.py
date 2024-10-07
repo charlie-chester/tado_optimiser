@@ -14,7 +14,7 @@ class HomeAssistantAPI:
     def is_home_assistant_running(self):
         try:
             response = requests.get(self.supervisor_url, headers=self.headers)
-            response.raise_for_status()  # Raise an error for bad status codes
+            response.raise_for_status()
             data = response.json()
             logging.debug(f"Supervisor API response: {data}")
             message = data.get("message")
@@ -27,7 +27,7 @@ class HomeAssistantAPI:
     def wait_for_home_assistant(self):
         while not self.is_home_assistant_running():
             logging.info("Waiting for Home Assistant to start...")
-            time.sleep(5)  # Check every 5 seconds
+            time.sleep(5)
         logging.info("Home Assistant is running. Proceeding with entity updates.")
 
     def update_entity(self, sensor, payload):

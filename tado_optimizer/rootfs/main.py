@@ -30,7 +30,6 @@ logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API}")
 
 weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
 hass = HomeAssistantAPI(token=TOKEN)
-hass.wait_for_ha_startup()
 
 def main():
     weather.get_weather_data()

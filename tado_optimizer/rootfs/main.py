@@ -37,15 +37,21 @@ hass = HomeAssistantAPI(token=TOKEN)
 def main():
     weather.get_weather_data()
 
-    now = datetime.now().strftime("%H:%M:%S")
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     sensor_config = {
-        "name": "Tado Temperature",
-        "state_topic": "homeassistant/sensor/tado_temperature/state",
+        "name": now,
+        "state_topic": "homeassistant/sensor/hourly_sensor_hour_0/state",
         "unit_of_measurement": "°C",
         "device_class": "temperature",
-        "unique_id": "tado_temperature_1234",
-        "availability_topic": "homeassistant/sensor/tado_temperature/availability",
+        "unique_id": "hourly_sensor_hour_0",
+        "availability_topic": "homeassistant/sensor/hourly_sensor_hour_0/availability",
+        "json_attributes_topic": "homeassistant/sensor/hourly_sensor_hour_0/attributes",  # Topic for attributes
+        "attributes": {
+            "attribute_1": "some_value",
+            "attribute_2": "another_value",
+            "attribute_3": "yet_another_value"
+        }
     }
 
     hass.update_entity(sensor_config)

@@ -17,7 +17,6 @@ class HomeAssistantAPI:
             "retain": True}
 
         response = requests.post(self.ha_url, headers=self.headers, json=discovery_message)
-
         logging.info(msg=f"Status code: {response.status_code}")
 
         if response.status_code == 200:

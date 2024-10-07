@@ -38,17 +38,17 @@ def main():
     weather.get_weather_data()
 
     now = datetime.now().strftime("%H:%M:%S")
-    sensor = "sensor.tado_optimizer_custom_sensor_1"
-    payload = {
-        "state": now,
-        "attributes": {
-            "unit_of_measurement": "Time",
-            "friendly_name": "Tado Optimizer 1",
-            "icon": "mdi:thermometer"
-        }
+
+    sensor_config = {
+        "name": "Tado Temperature",
+        "state_topic": "homeassistant/sensor/tado_temperature/state",
+        "unit_of_measurement": "°C",
+        "device_class": "temperature",
+        "unique_id": "tado_temperature_1234",
+        "availability_topic": "homeassistant/sensor/tado_temperature/availability",
     }
 
-    hass.update_entity(sensor, payload)
+    hass.update_entity(sensor_config)
 
 
 main()

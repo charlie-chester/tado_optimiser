@@ -16,6 +16,8 @@ class HomeAssistantAPI:
         logging.info(msg=f"Status code: {data.status_code}")
 
         if data.status_code == 201:
-            logging.info(msg=f"Entity updated: {sensor}")
+            logging.info(msg=f"New entity successfully created: {sensor}")
+        elif data.status_code == 200:
+            logging.info(msg=f"Entity successfully updated: {sensor}")
         else:
             logging.error(msg=f"Error updating entity: {sensor}")

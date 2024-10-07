@@ -1,9 +1,8 @@
 import logging
+import time
 from datetime import datetime
-
 import yaml
 import schedule
-import time
 from weather_api import WeatherAPI
 from hass import HomeAssistantAPI
 

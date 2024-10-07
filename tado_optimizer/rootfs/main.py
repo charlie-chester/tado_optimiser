@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import time
@@ -9,20 +10,15 @@ from hass import HomeAssistantAPI
 
 time.sleep(10)
 
-options_addon = "/data/options.json"
-with open(options_addon, "r") as file:
-    addon_options = yaml.safe_load(file)
+options_file = "/data/options.json"
+with open(options_file, "r") as file:
+    options = yaml.safe_load(file)
 
-LOG_LEVEL = addon_options.get("log_level", "INFO")
-LATITUDE = addon_options.get("latitude")
-LONGITUDE = addon_options.get("longitude")
-OPEN_WEATHER_API = addon_options.get("open_weather_api")
-
-options_supervisor = "/data/auth.json"
-with (open(options_supervisor, "r") as file):
-    supervisor_options = json.load(file)
-
-TOKEN = supervisor_options.get("access_token")
+LOG_LEVEL = options.get("log_level", "INFO")
+LATITUDE = options.get("latitude")
+LONGITUDE = options.get("longitude")
+OPEN_WEATHER_API = options.get("open_weather_api")
+TOKEN = os.getenv("SUPERVISOR_TOKEN")
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL),
                     format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s",
@@ -41,18 +37,24 @@ hass = HomeAssistantAPI(token=TOKEN)
 def main():
     weather.get_weather_data()
 
-    now = datetime.now().strftime("%H:%M:%S")
-    sensor = "sensor.tado_optimizer_custom_sensor_1"
-    payload = {
-        "state": now,
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    sensor_config = {
+        "name": now,
+        "state_topic": "homeassistant/sensor/hourly_sensor_hour_0/state",
+        "unit_of_measurement": "°C",
+        "device_class": "temperature",
+        "unique_id": "hourly_sensor_hour_0",
+        "availability_topic": "homeassistant/sensor/hourly_sensor_hour_0/availability",
+        "json_attributes_topic": "homeassistant/sensor/hourly_sensor_hour_0/attributes",  # Topic for attributes
         "attributes": {
-            "unit_of_measurement": "Time",
-            "friendly_name": "Tado Optimizer 1",
-            "icon": "mdi:thermometer"
+            "attribute_1": "some_value",
+            "attribute_2": "another_value",
+            "attribute_3": "yet_another_value"
         }
     }
 
-    hass.update_entity(sensor, payload)
+    hass.update_entity(sensor_config)
 
 
 main()

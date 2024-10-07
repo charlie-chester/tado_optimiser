@@ -46,4 +46,5 @@ class WeatherAPI:
             }
         }
 
+        home_assistant.is_ha_running()
         home_assistant.update_entity(sensor, payload)

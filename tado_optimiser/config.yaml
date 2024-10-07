@@ -3,7 +3,7 @@ name: Tado Optimiser
 version: 1.0.26
 slug: tado_optimiser
 description: Tado Optimiser
-url: https://github.com/charlie-chester/tado_optimizer
+url: https://github.com/charlie-chester/tado_optimiser
 codenotary: m.chester@me.com
 ingress: True
 ingress_port: 5052

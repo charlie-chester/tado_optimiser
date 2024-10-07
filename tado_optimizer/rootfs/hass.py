@@ -1,10 +1,11 @@
 import logging
 import requests
+import os
 
 
 class HomeAssistantAPI:
-    def __init__(self, token):
-        self.token = token
+    def __init__(self,):
+        self.token = os.getenv("$SUPERVISOR_TOKEN")
         self.base_url = "http://homeassistant.local:8123"
         self.headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
 

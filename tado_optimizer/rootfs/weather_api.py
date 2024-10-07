@@ -5,6 +5,16 @@ from hass import HomeAssistantAPI
 
 hass = HomeAssistantAPI()
 
+def convert_time(unix_time):
+    readable_time = datetime.fromtimestamp(unix_time)
+    formatted_time = readable_time.strftime('%H:%M - %d %B %Y')
+    return formatted_time
+
+def convert_time_date_only(unix_time):
+    readable_time = datetime.fromtimestamp(unix_time)
+    formatted_time = readable_time.strftime('%d %B %Y')
+    return formatted_time
+
 class WeatherAPI:
     def __init__(self, open_weather_api_key, latitude, longitude):
         self.base_url = "https://api.openweathermap.org/data/3.0/onecall?"
@@ -23,17 +33,16 @@ class WeatherAPI:
         self.weather_data = response.json()
 
     def sample_update(self):
-        now = datetime.now().strftime("%H:%M:%S")
+        hourly_data = self.weather_data["hourly"]
         sensor = "sensor.tado_optimizer_custom_sensor_1"
         payload = {
-            "state": self.weather_data["hourly"][0]["temp"],
+            "state": hourly_data[0]["temp"],
             "attributes": {
-                "unit_of_measurement": "Time",
-                "friendly_name": "Tado Optimizer 1",
+                "unit_of_measurement": "°C",
+                "friendly_name": convert_time(hourly_data[0]["dt"]),
                 "icon": "mdi:thermometer",
-                "Latitude": self.latitude,
-                "Longitude": self.longitude,
-                "humidity": "78%"
+                "Pressure": hourly_data[0]["pressure"],
+                "Humidity": hourly_data[0]["humidity"],
             }
         }
 

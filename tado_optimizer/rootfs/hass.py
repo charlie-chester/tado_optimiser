@@ -46,8 +46,10 @@ class HomeAssistantAPI:
 
     def wait_for_ha_startup(self):
         # Run the WebSocket listener
+        logging.info(msg="Checking that Home Assistant has started...")
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self._listen_for_ha_started())
+        logging.info(msg="Home Assistant is ready.")
 
     def update_entity(self, sensor, payload):
         fullUrl = f"{self.base_url}{sensor}"

@@ -13,6 +13,8 @@ class HomeAssistantAPI:
         fullUrl = f"{self.base_url}{sensor}"
         data = requests.post(fullUrl, headers=self.headers, json=payload)
 
+        logging.info(msg=f"Status code: {data.status_code}")
+
         if data.status_code == 200:
             logging.info(msg=f"Entity updated: {sensor}")
         else:

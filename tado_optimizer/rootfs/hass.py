@@ -1,9 +1,7 @@
 import logging
 import time
 import requests
-import asyncio
 import json
-import websockets
 
 class HomeAssistantAPI:
     def __init__(self, token):

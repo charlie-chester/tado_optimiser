@@ -6,7 +6,7 @@ import yaml
 import schedule
 from weather_api import WeatherAPI
 
-# time.sleep(5)
+time.sleep(3)
 
 options_file = "/data/options.json"
 with open(options_file, "r") as file:
@@ -16,7 +16,6 @@ LOG_LEVEL = options.get("log_level", "INFO")
 LATITUDE = options.get("latitude")
 LONGITUDE = options.get("longitude")
 OPEN_WEATHER_API = options.get("open_weather_api")
-TOKEN = os.getenv("SUPERVISOR_TOKEN")
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL),
                     format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s",

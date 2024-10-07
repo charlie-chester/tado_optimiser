@@ -5,12 +5,12 @@ import os
 
 class HomeAssistantAPI:
     def __init__(self,):
-        self.token = os.getenv("$SUPERVISOR_TOKEN")
-        self.base_url = "http://homeassistant.local:8123"
+        self.token = os.getenv("SUPERVISOR_TOKEN")
+        self.base_url = "http://supervisor/core/api/states/"
         self.headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
 
     def update_entity(self, sensor, payload):
-        fullUrl = f"{self.base_url}/api/states/{sensor}"
+        fullUrl = f"{self.base_url}{sensor}"
         data = requests.post(fullUrl, headers=self.headers, json=payload)
 
         logging.info(msg=f"Status code: {data.status_code}")

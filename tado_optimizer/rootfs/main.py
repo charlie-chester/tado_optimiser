@@ -17,7 +17,7 @@ LOG_LEVEL = options.get("log_level", "INFO")
 LATITUDE = options.get("latitude")
 LONGITUDE = options.get("longitude")
 OPEN_WEATHER_API = options.get("open_weather_api")
-TOKEN = os.getenv("$SUPERVISOR_TOKEN")
+TOKEN = os.getenv("SUPERVISOR_TOKEN")
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL),
                     format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s",

@@ -1,3 +1,4 @@
 requests
 pyyaml
 schedule
+websockets

@@ -6,7 +6,7 @@ import yaml
 import schedule
 from weather_api import WeatherAPI
 
-time.sleep(10)
+time.sleep(30)
 
 options_file = "/data/options.json"
 with open(options_file, "r") as file:

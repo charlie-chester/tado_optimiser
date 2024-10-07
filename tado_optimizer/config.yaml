@@ -1,6 +1,6 @@
 ---
 name: Tado Optimizer
-version: 1.0.60
+version: 1.0.61
 slug: tado_optimizer
 description: Tado Optimizer
 url: https://github.com/charlie-chester/tado_optimizer
@@ -23,8 +23,6 @@ map:
   - media:rw
   - share:rw
   - ssl
-privileged:
-  - api
 options:
   log_level:
   latitude: ""

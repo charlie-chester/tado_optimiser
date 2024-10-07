@@ -28,9 +28,13 @@ class WeatherAPI:
         fullUrl = f"{self.base_url}lat={self.latitude}&lon={self.longitude}&appid={self.api_key}&units=metric"
         logging.debug(msg=f"Get weather data fullUrl: {fullUrl}")
         response = requests.get(fullUrl)
-        status = response.status_code
-        logging.info(msg=f"Weather API status code: {status}")
         self.weather_data = response.json()
+
+        status = response.status_code
+        if status == 200:
+            logging.info(msg="Weather data successfully retrieved")
+        else:
+            logging.error(msg=f"Error getting weather data. Status code: {status}")
 
     def sample_update(self):
         hourly_data = self.weather_data["hourly"]

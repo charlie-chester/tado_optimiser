@@ -1,4 +1,5 @@
 import logging
+import time
 import requests
 import os
 
@@ -10,12 +11,22 @@ class HomeAssistantAPI:
         self.supervisor_url = "http://supervisor/core/api/"
         self.headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
 
-    def is_ha_running(self):
-        response = requests.get(self.supervisor_url, headers=self.headers)
-        data = response.json()
-        state = data.get("state")
-        logging.info(msg=f"Home Assistant state: {state}")
-        return state == "running"
+    def is_home_assistant_running(self):
+        try:
+            response = requests.get(self.supervisor_url, headers=self.headers)
+            response.raise_for_status()
+            data = response.json()
+            state = data.get("state")
+            return state == "running"
+        except requests.RequestException as e:
+            logging.error(f"Error querying Home Assistant state: {e}")
+            return False
+
+    def wait_for_home_assistant(self):
+        while not self.is_home_assistant_running():
+            logging.info("Waiting for Home Assistant to start...")
+            time.sleep(5)  # Check every 5 seconds
+        logging.info("Home Assistant is running. Proceeding with entity updates.")
 
     def update_entity(self, sensor, payload):
         logging.info(msg=f"Updating entity: {sensor}")

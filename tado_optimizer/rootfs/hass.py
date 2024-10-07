@@ -28,6 +28,8 @@ class HomeAssistantAPI:
                 response = await websocket.recv()
                 data = json.loads(response)
 
+                logging.info(msg=f"Data get: {data.get('type')}")
+
                 if data.get("type") == "auth_ok":
                     logging.info("Authenticated successfully.")
 

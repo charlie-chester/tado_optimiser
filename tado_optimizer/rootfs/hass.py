@@ -17,9 +17,9 @@ class HomeAssistantAPI:
             response.raise_for_status()  # Raise an error for bad status codes
             data = response.json()
             logging.debug(f"Supervisor API response: {data}")
-            state = data.get("state")
-            logging.debug(f"Home Assistant state: {state}")
-            return state == "running"
+            message = data.get("message")
+            logging.debug(f"Home Assistant message: {message}")
+            return message == "API running."
         except requests.RequestException as e:
             logging.error(f"Error querying Home Assistant state: {e}")
             return False

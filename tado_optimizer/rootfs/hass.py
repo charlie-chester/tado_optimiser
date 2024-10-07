@@ -14,9 +14,11 @@ class HomeAssistantAPI:
     def is_home_assistant_running(self):
         try:
             response = requests.get(self.supervisor_url, headers=self.headers)
-            response.raise_for_status()
+            response.raise_for_status()  # Raise an error for bad status codes
             data = response.json()
+            logging.debug(f"Supervisor API response: {data}")
             state = data.get("state")
+            logging.debug(f"Home Assistant state: {state}")
             return state == "running"
         except requests.RequestException as e:
             logging.error(f"Error querying Home Assistant state: {e}")

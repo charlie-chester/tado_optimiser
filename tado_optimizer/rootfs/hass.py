@@ -1,7 +1,6 @@
 import logging
 import time
 import requests
-import json
 
 
 class HomeAssistantAPI:
@@ -12,6 +11,7 @@ class HomeAssistantAPI:
         self.headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
 
     def wait_for_ha_startup(self, poll_interval=5):
+        logging.info("Waiting for Home Assistant to fully start...")
         while not self._is_ha_fully_started():
             logging.info(f"Waiting for {poll_interval} seconds before checking again...")
             time.sleep(poll_interval)
@@ -23,11 +23,8 @@ class HomeAssistantAPI:
             response.raise_for_status()
             states = response.json()
 
-            # Log state entities for debugging
-            logging.debug(f"State entities received: {json.dumps(states, indent=2)}")
-
             # Check if the states contain a specific entity, which indicates HA is fully started
-            if states and any(state['entity_id'] == 'homeassistant' for state in states):
+            if states and any(state['entity_id'] == 'sun.sun' for state in states):
                 return True
             else:
                 logging.info("Home Assistant is not fully started yet.")

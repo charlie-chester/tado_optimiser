@@ -38,7 +38,7 @@ class WeatherAPI:
 
     def sample_update(self):
         hourly_data = self.weather_data["hourly"]
-        sensor = "sensor.tado_optimizer_custom_sensor_1"
+        sensor = "sensor.tado_optimiser_custom_sensor_1"
         payload = {
             "state": hourly_data[0]["temp"],
             "attributes": {

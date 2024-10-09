@@ -87,9 +87,78 @@ class WeatherAPI:
                     "attributes": {
                         "unit_of_measurement": "°C",
                         "friendly_name": convert_time(hourly_data[hour]["dt"]),
+                        "icon": "mdi:thermometer",
                     }
                 }
 
             home_assistant.update_entity(sensor, payload)
 
         logging.info(msg="Hourly entities created / updated")
+
+    def daily_entities(self):
+        daily_data = self.weather_data["daily"]
+        for day in range(0, 8):
+            rain = daily_data[day].get("rain", "No Data")
+            if rain == "No Data":
+                logging.info(msg=f"No Rain data found for {convert_time_date_only(daily_data[day]['dt'])} using default message")
+
+            # TODO Need to add snow data
+            # Need to check other missing entries
+
+            sensor = f"sensor.tado_open_weather_day_{day}"
+            try:
+                payload = {
+                    "state": daily_data[day]["temp"]["day"],
+                    "attributes": {
+                        "unit_of_measurement": "°C",
+                        "friendly_name": convert_time_date_only(daily_data[day]["dt"]),
+                        "icon": "mdi:thermometer",
+                        "Sunrise": convert_time(daily_data[day]["sunrise"]),
+                        "Sunset": convert_time(daily_data[day]["sunset"]),
+                        "Moonrise": convert_time(daily_data[day]["moonrise"]),
+                        "Moonset": convert_time(daily_data[day]["moonset"]),
+                        "Moon phase": daily_data[day]["moon_phase"],
+                        "Summary": daily_data[day]["summary"],
+                        "Temp - Day": daily_data[day]["temp"]["day"],
+                        "Temp - Min": daily_data[day]["temp"]["min"],
+                        "Temp - Max": daily_data[day]["temp"]["max"],
+                        "Temp - Night": daily_data[day]["temp"]["night"],
+                        "Temp - Eve": daily_data[day]["temp"]["eve"],
+                        "Temp - Morn": daily_data[day]["temp"]["morn"],
+                        "Feels like - Day": daily_data[day]["feels_like"]["day"],
+                        "Feels like - Night": daily_data[day]["feels_like"]["night"],
+                        "Feels like - Eve": daily_data[day]["feels_like"]["eve"],
+                        "Feels like - Morn": daily_data[day]["feels_like"]["morn"],
+                        "Pressure": daily_data[day]["pressure"],
+                        "Humidity": daily_data[day]["humidity"],
+                        "Dew point": daily_data[day]["dew_point"],
+                        "Wind speed": daily_data[day]["wind_speed"],
+                        "Wind degrees": daily_data[day]["wind_deg"],
+                        "Wind gust": daily_data[day]["wind_gust"],
+                        "Weather - ID": daily_data[day]["weather"][0]["id"],
+                        "Weather - Main": daily_data[day]["weather"][0]["main"],
+                        "Weather - Description": daily_data[day]["weather"][0]["description"],
+                        "Clouds": daily_data[day]["clouds"],
+                        "POP": daily_data[day]["pop"],
+                        "Rain": rain,
+                        "UVI": daily_data[day]["uvi"],
+                    }
+                }
+
+            except KeyError as e:
+                missing_key = str(e).strip("'")
+                logging.info(msg=f"KeyError: Missing key '{missing_key}' in daily data for "
+                         f"{convert_time_date_only(daily_data[day]['dt'])}")
+                payload = {
+                    "state": daily_data[day]["temp"]["day"],
+                    "attributes": {
+                        "unit_of_measurement": "°C",
+                        "friendly_name": convert_time_date_only(daily_data[day]["dt"]),
+                        "icon": "mdi:thermometer",
+                    }
+                }
+
+            home_assistant.update_entity(sensor, payload)
+
+        logging.info(msg="Daily entities created / updated")
+

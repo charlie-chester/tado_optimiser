@@ -36,22 +36,6 @@ class WeatherAPI:
         else:
             logging.error(msg=f"Error getting weather data. Status code: {status}")
 
-    def sample_update(self):
-        hourly_data = self.weather_data["hourly"]
-        sensor = "sensor.tado_optimiser_custom_sensor_1"
-        payload = {
-            "state": hourly_data[0]["temp"],
-            "attributes": {
-                "unit_of_measurement": "°C",
-                "friendly_name": convert_time(hourly_data[0]["dt"]),
-                "icon": "mdi:thermometer",
-                "Pressure": hourly_data[0]["pressure"],
-                "Humidity": hourly_data[0]["humidity"],
-            }
-        }
-
-        home_assistant.update_entity(sensor, payload)
-
     def hourly_entities(self):
         hourly_data = self.weather_data["hourly"]
         for hour in range(0, 12):

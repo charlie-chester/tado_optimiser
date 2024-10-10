@@ -26,7 +26,7 @@ logging.info(msg="Tado Optimizer starting")
 
 logging.info(msg=f"The latitude is {LATITUDE}")
 logging.info(msg=f"The longitude is {LONGITUDE}")
-logging.debug(msg=f"The Open Weather API Key is {OPEN_WEATHER_API}")
+logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API}")
 logging.info(msg=f"Control Tado is set to {CONTROL_TADO}")
 logging.debug(msg=f"The Home Assistant Token is {TOKEN}")
 
@@ -34,12 +34,9 @@ weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, l
 
 def main():
     weather.get_weather_data()
-
     weather.current_weather()
     weather.hourly_entities()
     weather.daily_entities()
-
-
 
     if CONTROL_TADO == "YES":
         tado_control()
@@ -48,8 +45,6 @@ def main():
 
 def tado_control():
     logging.info(msg="Tado Control starting")
-
-
 
 main()
 

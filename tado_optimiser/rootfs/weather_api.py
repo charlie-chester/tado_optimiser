@@ -88,8 +88,10 @@ class WeatherAPI:
             if wind_gust == "No Data":
                 logging.debug(msg=f"No Wind Gust data found for {convert_time(hourly_data[hour]['dt'])} using default message")
 
-            rain = hourly_data[hour].get("rain", "No Data")
-            if rain == "No Data":
+            # rain = hourly_data[hour].get("rain", 0)
+            rain = hourly_data[hour].get("rain", {}).get("1h", 0)  # TODO If it shows rain in attributes then copy to snow
+            logging.info(msg=f"Rain data found {rain}")
+            if rain == 0:
                 logging.debug(msg=f"No Rain data found for {convert_time(hourly_data[hour]['dt'])} using default message")
 
             snow = hourly_data[hour].get("snow", "No Data")
@@ -144,16 +146,16 @@ class WeatherAPI:
     def daily_entities(self):
         daily_data = self.weather_data["daily"]
         for day in range(0, 8):
-            wind_gusts = daily_data[day].get("wind_gust", "No Data")
-            if wind_gusts == "No Data":
+            wind_gusts = daily_data[day].get("wind_gust", 0)
+            if wind_gusts == 0:
                 logging.debug(msg=f"No Wind Gust data found for {convert_time_date_only(daily_data[day]['dt'])} using default message")
 
-            rain = daily_data[day].get("rain", "No Data")
-            if rain == "No Data":
+            rain = daily_data[day].get("rain", 0)
+            if rain == 0:
                 logging.debug(msg=f"No Rain data found for {convert_time_date_only(daily_data[day]['dt'])} using default message")
 
-            snow = daily_data[day].get("snow", "No Data")
-            if snow == "No Data":
+            snow = daily_data[day].get("snow", 0)
+            if snow == 0:
                 logging.debug(msg=f"No Snow data found for {convert_time_date_only(daily_data[day]['dt'])} using default message")
 
             sensor = f"sensor.tado_optimiser_day_{day}"

@@ -34,6 +34,8 @@ weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, l
 
 def main():
     weather.get_weather_data()
+
+    weather.current_weather()
     weather.hourly_entities()
     weather.daily_entities()
 

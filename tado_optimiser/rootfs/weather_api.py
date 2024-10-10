@@ -36,6 +36,51 @@ class WeatherAPI:
         else:
             logging.error(msg=f"Error getting weather data. Status code: {status}")
 
+    def current_weather(self):
+        current_data = self.weather_data["current"]
+        wind_gusts = current_data.get("wind_gust", "No Data")
+        if wind_gusts == "No Data":
+            logging.debug(msg=f"No Wind Gust data found for {convert_time(current_data['dt'])} using default message")
+
+        rain = current_data.get("rain", "No Data")
+        if rain == "No Data":
+            logging.debug(msg=f"No Rain data found for {convert_time(current_data['dt'])} using default message")
+
+        snow = current_data.get("snow", "No Data")
+        if snow == "No Data":
+            logging.debug(msg=f"No Snow data found for {convert_time(current_data['dt'])} using default message")
+
+        sensor = "sensor.tado_optimiser_current"
+        payload = {
+            "state": current_data["temp"],
+            "attributes": {
+                "unit_of_measurement": "°C",
+                "friendly_name": convert_time(current_data["dt"]),
+                "icon": "mdi:thermometer",
+                "Sunrise": convert_time(current_data["sunrise"]),
+                "Sunset": convert_time(current_data["sunset"]),
+                "Temp": current_data["temp"],
+                "Feels like": current_data["feels_like"],
+                "Pressure": current_data["pressure"],
+                "Humidity": current_data["humidity"],
+                "Dew point": current_data["dew_point"],
+                "Clouds": current_data["clouds"],
+                "UVI": current_data["uvi"],
+                "Visibility": current_data["visibility"],
+                "Wind speed": current_data["wind_speed"],
+                "Wind Gust": wind_gusts,
+                "Wind degrees": current_data["wind_deg"],
+                "Rain": rain,
+                "Snow": snow,
+                "Weather - ID": current_data["weather"][0]["id"],
+                "Weather - Main": current_data["weather"][0]["main"],
+                "Weather - Description": current_data["weather"][0]["description"]
+            }
+        }
+
+        home_assistant.update_entity(sensor, payload)
+        logging.info(msg="Current weather entity created / updated")
+
     def hourly_entities(self):
         hourly_data = self.weather_data["hourly"]
         for hour in range(0, 12):
@@ -59,6 +104,8 @@ class WeatherAPI:
                         "unit_of_measurement": "°C",
                         "friendly_name": convert_time(hourly_data[hour]["dt"]),
                         "icon": "mdi:thermometer",
+                        "Time": convert_time(hourly_data[hour]["dt"]),
+                        "Temp": hourly_data[hour]["temp"],
                         "Feels like": hourly_data[hour]["feels_like"],
                         "Pressure": hourly_data[hour]["pressure"],
                         "Humidity": hourly_data[hour]["humidity"],
@@ -92,7 +139,6 @@ class WeatherAPI:
                 }
 
             home_assistant.update_entity(sensor, payload)
-
         logging.info(msg="Hourly entities created / updated")
 
     def daily_entities(self):
@@ -118,6 +164,7 @@ class WeatherAPI:
                         "unit_of_measurement": "°C",
                         "friendly_name": convert_time_date_only(daily_data[day]["dt"]),
                         "icon": "mdi:thermometer",
+                        "Date": convert_time_date_only(daily_data[day]["dt"]),
                         "Sunrise": convert_time(daily_data[day]["sunrise"]),
                         "Sunset": convert_time(daily_data[day]["sunset"]),
                         "Moonrise": convert_time(daily_data[day]["moonrise"]),
@@ -169,6 +216,5 @@ class WeatherAPI:
                 }
 
             home_assistant.update_entity(sensor, payload)
-
         logging.info(msg="Daily entities created / updated")
 

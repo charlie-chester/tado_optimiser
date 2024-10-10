@@ -21,3 +21,8 @@ class HomeAssistantAPI:
             logging.debug(msg=f"Entity successfully updated: {sensor}")
         else:
             logging.error(msg=f"Error updating entity: {sensor}")
+
+    def get_entity_state(self, sensor):
+        fullUrl = f"{self.base_url}{sensor}"
+        response = requests.get(fullUrl, headers=self.headers)
+        return response.json()["state"]

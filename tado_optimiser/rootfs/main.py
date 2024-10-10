@@ -87,7 +87,7 @@ def tado_control():
     logging.info(msg="*************************************************************************")
 
     # Iterate through rooms and apply settings
-    for room_name, room_date in ROOMS.items():
+    for room_name, room_data in ROOMS.items():
         logging.info(msg=room_name.upper().replace('_', ' '))
 
         # Obtain Tado Data
@@ -102,17 +102,35 @@ def tado_control():
         logging.info(msg=f"Sunrise time: {sunrise}")
         logging.info(msg=f"Current weather - ID: {current_weather_id}, Condition: {current_weather_condition}")
 
+        # Set minimum room temperature based on time and room
+        if sunrise <= datetime.now().time() < datetime.now().time().replace(hour=MORNING_ENDS[0], minute=MORNING_ENDS[1]):
+            room_minimum_temp = room_data["morning"]
+            logging.info(msg=f"Morning: Minimum room temperature: {room_minimum_temp} C")
 
+            # Adjusts room temperature based on sunshine
+            if 800 <= current_weather_id <= 802:
+                room_minimum_temp = room_minimum_temp - room_data["sun_correction"]
+                logging.info(msg=f"Sun Correction: {room_data['sun_correction']} C")
+                logging.info(msg=f"Minimum room temperature after sun correction: {room_minimum_temp} C")
+        else:
+            room_minimum_temp = room_data["day"]
+            logging.info(msg=f"Afternoon / Evening: Minimum room temperature: {room_minimum_temp} C")
 
+        # Main logical questions
+        if room_climate == "off" and float(room_temperature) < room_minimum_temp:
+            home_assistant.set_hvac_mode(entity_id=f"climate.{room_name}", hvac_mode="auto")
+            logging.info(msg=f"Room temperature less than {room_minimum_temp} C and climate set to {room_climate} turning to auto")
 
+        elif room_climate == "off" and heating_required == True:
+            home_assistant.set_hvac_mode(entity_id=f"climate.{room_name}", hvac_mode="auto")
+            logging.info(msg=f"Outside temperature below {OUTSIDE_TEMP} C in the next 3 hours turning to auto")
 
+        elif room_climate == "auto" and heating_required == False and float(room_temperature) >= room_minimum_temp:
+            home_assistant.set_hvac_mode(entity_id=f"climate.{room_name}", hvac_mode="off")
+            logging.info(msg=f"Outside temperature above {OUTSIDE_TEMP} in the next 3 hours turning to off")
 
-
-
-
-
-
-
+        else:
+            logging.info(msg="No change needed")
 
         logging.info(msg="*************************************************************************")
 
@@ -121,7 +139,7 @@ def tado_control():
 
 main()
 
-for minute in ["00:05", "15:00", "30:00", "45:00"]:
+for minute in ["00:05", "10:00", "20:00", "30:00", "40:00", "50:00"]:
     schedule.every().hour.at(minute).do(main)
 
 while True:

@@ -51,7 +51,7 @@ class WeatherAPI:
             if snow == "No Data":
                 logging.info(msg=f"No Snow data found for {convert_time(hourly_data[hour]['dt'])} using default message")
 
-            sensor = f"sensor.tado_open_weather_hour_{hour}"
+            sensor = f"sensor.tado_optimiser_hour_{hour}"
             try:
                 payload = {
                     "state": hourly_data[hour]["temp"],
@@ -105,7 +105,7 @@ class WeatherAPI:
             # TODO Need to add snow data
             # Need to check other missing entries
 
-            sensor = f"sensor.tado_open_weather_day_{day}"
+            sensor = f"sensor.tado_optimiser_day_{day}"
             try:
                 payload = {
                     "state": daily_data[day]["temp"]["day"],

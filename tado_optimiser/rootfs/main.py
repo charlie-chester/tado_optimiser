@@ -12,6 +12,7 @@ with open(options_file, "r") as file:
     options = yaml.safe_load(file)
 
 LOG_LEVEL = options.get("log_level", "INFO")
+CONTROL_TADO = options.get("control_tado")
 LATITUDE = options.get("latitude")
 LONGITUDE = options.get("longitude")
 OPEN_WEATHER_API = options.get("open_weather_api")
@@ -26,6 +27,7 @@ logging.info(msg="Tado Optimizer starting")
 logging.info(msg=f"The latitude is {LATITUDE}")
 logging.info(msg=f"The longitude is {LONGITUDE}")
 logging.debug(msg=f"The Open Weather API Key is {OPEN_WEATHER_API}")
+logging.info(msg=f"Control Tado is set to {CONTROL_TADO}")
 logging.debug(msg=f"The Home Assistant Token is {TOKEN}")
 
 weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)

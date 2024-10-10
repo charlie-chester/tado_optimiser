@@ -41,15 +41,15 @@ class WeatherAPI:
         for hour in range(0, 12):
             wind_gust = hourly_data[hour].get("wind_gust", "No Data")
             if wind_gust == "No Data":
-                logging.info(msg=f"No Wind Gust data found for {convert_time(hourly_data[hour]['dt'])} using default message")
+                logging.debug(msg=f"No Wind Gust data found for {convert_time(hourly_data[hour]['dt'])} using default message")
 
             rain = hourly_data[hour].get("rain", "No Data")
             if rain == "No Data":
-                logging.info(msg=f"No Rain data found for {convert_time(hourly_data[hour]['dt'])} using default message")
+                logging.debug(msg=f"No Rain data found for {convert_time(hourly_data[hour]['dt'])} using default message")
 
             snow = hourly_data[hour].get("snow", "No Data")
             if snow == "No Data":
-                logging.info(msg=f"No Snow data found for {convert_time(hourly_data[hour]['dt'])} using default message")
+                logging.debug(msg=f"No Snow data found for {convert_time(hourly_data[hour]['dt'])} using default message")
 
             sensor = f"sensor.tado_optimiser_hour_{hour}"
             try:
@@ -100,7 +100,7 @@ class WeatherAPI:
         for day in range(0, 8):
             rain = daily_data[day].get("rain", "No Data")
             if rain == "No Data":
-                logging.info(msg=f"No Rain data found for {convert_time_date_only(daily_data[day]['dt'])} using default message")
+                logging.debug(msg=f"No Rain data found for {convert_time_date_only(daily_data[day]['dt'])} using default message")
 
             # TODO Need to add snow data
             # Need to check other missing entries

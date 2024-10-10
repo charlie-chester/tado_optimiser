@@ -1,6 +1,6 @@
 ---
 name: Tado Optimiser
-version: 1.0.37
+version: 1.0.43
 slug: tado_optimiser
 description: Tado Optimiser
 url: https://github.com/charlie-chester/tado_optimiser
@@ -25,11 +25,13 @@ map:
   - ssl
 options:
   log_level:
+  control_tado:
   latitude: ""
   longitude: ""
   open_weather_api: ""
 schema:
   log_level: list(DEBUG|INFO|WARNING|ERROR|CRITICAL)?
+  control_tado: list(YES|NO)?
   latitude: str
   longitude: str
   open_weather_api: str

@@ -10,14 +10,14 @@ class HomeAssistantAPI:
         self.headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
 
     def update_entity(self, sensor, payload):
-        logging.info(msg=f"Updating entity: {sensor}")
+        logging.debug(msg=f"Updating entity: {sensor}")
         fullUrl = f"{self.base_url}{sensor}"
         response = requests.post(fullUrl, headers=self.headers, json=payload)
         logging.debug(msg=f"Status code: {response.status_code}")
 
         if response.status_code == 201:
-            logging.info(msg=f"New entity successfully created: {sensor}")
+            logging.debug(msg=f"New entity successfully created: {sensor}")
         elif response.status_code == 200:
-            logging.info(msg=f"Entity successfully updated: {sensor}")
+            logging.debug(msg=f"Entity successfully updated: {sensor}")
         else:
             logging.error(msg=f"Error updating entity: {sensor}")

@@ -72,9 +72,9 @@ class WeatherAPI:
                         "POP": hourly_data[hour]["pop"],
                         "Rain": rain,
                         "Snow": snow,
-                        "Weather - ID": hourly_data[hour]["weather"][0]["id"],
-                        "Weather - Main": hourly_data[hour]["weather"][0]["main"],
-                        "Weather - Description": hourly_data[hour]["weather"][0]["description"]
+                        "Hourly Weather - ID": hourly_data[hour]["weather"][0]["id"],
+                        "Hourly Weather - Main": hourly_data[hour]["weather"][0]["main"],
+                        "Hourly Weather - Description": hourly_data[hour]["weather"][0]["description"]
                     }
                 }
 
@@ -98,12 +98,17 @@ class WeatherAPI:
     def daily_entities(self):
         daily_data = self.weather_data["daily"]
         for day in range(0, 8):
+            wind_gusts = daily_data[day].get("wind_gust", "No Data")
+            if wind_gusts == "No Data":
+                logging.debug(msg=f"No Wind Gust data found for {convert_time_date_only(daily_data[day]['dt'])} using default message")
+
             rain = daily_data[day].get("rain", "No Data")
             if rain == "No Data":
                 logging.debug(msg=f"No Rain data found for {convert_time_date_only(daily_data[day]['dt'])} using default message")
 
-            # TODO Need to add snow data
-            # Need to check other missing entries
+            snow = daily_data[day].get("snow", "No Data")
+            if snow == "No Data":
+                logging.debug(msg=f"No Snow data found for {convert_time_date_only(daily_data[day]['dt'])} using default message")
 
             sensor = f"sensor.tado_optimiser_day_{day}"
             try:
@@ -133,15 +138,20 @@ class WeatherAPI:
                         "Humidity": daily_data[day]["humidity"],
                         "Dew point": daily_data[day]["dew_point"],
                         "Wind speed": daily_data[day]["wind_speed"],
+                        "Wind Gusts": wind_gusts,
                         "Wind degrees": daily_data[day]["wind_deg"],
                         "Wind gust": daily_data[day]["wind_gust"],
                         "Weather - ID": daily_data[day]["weather"][0]["id"],
                         "Weather - Main": daily_data[day]["weather"][0]["main"],
                         "Weather - Description": daily_data[day]["weather"][0]["description"],
                         "Clouds": daily_data[day]["clouds"],
+                        "UVI": daily_data[day]["uvi"],
                         "POP": daily_data[day]["pop"],
                         "Rain": rain,
-                        "UVI": daily_data[day]["uvi"],
+                        "Snow": snow,
+                        "Daily Weather - ID": daily_data[day]["weather"][0]["id"],
+                        "Daily Weather - Main": daily_data[day]["weather"][0]["main"],
+                        "Daily Weather - Description": daily_data[day]["weather"][0]["description"],
                     }
                 }
 

@@ -11,8 +11,8 @@ options_file = "/data/options.json"
 with open(options_file, "r") as file:
     options = yaml.safe_load(file)
 
-LOG_LEVEL = options.get("log_level", "INFO")
-CONTROL_TADO = options.get("control_tado")
+LOG_LEVEL = options.get("log_level", "INFO").upper()
+CONTROL_TADO = options.get("control_tado").upper()
 LATITUDE = options.get("latitude")
 LONGITUDE = options.get("longitude")
 OPEN_WEATHER_API = options.get("open_weather_api")
@@ -36,6 +36,18 @@ def main():
     weather.get_weather_data()
     weather.hourly_entities()
     weather.daily_entities()
+
+
+
+    if CONTROL_TADO == "YES":
+        tado_control()
+    else:
+        logging.info(msg="Tado Control not enabled")
+
+def tado_control():
+    logging.info(msg="Tado Control starting")
+
+
 
 main()
 

@@ -9,11 +9,14 @@ from weather_api import WeatherAPI
 from hass import HomeAssistantAPI
 
 time.sleep(3)
-LOG_LEVEL = os.getenv("log_level", "INFO").upper()
+options_file = "/data/options.json"
+with open(options_file, "r") as file:
+    options = yaml.safe_load(file)
+
+LOG_LEVEL = options.get("log_level", "INFO").upper()
 logging.basicConfig(level=getattr(logging, LOG_LEVEL), format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 logging.info(msg="Tado Optimizer starting")
 
-logging.info(LOG_LEVEL)
 
 if not os.path.exists("/config/settings.yaml"):
     shutil.copy(src="/settings.yaml", dst="/config/settings.yaml")
@@ -35,11 +38,11 @@ SUN_CORRECTION_TEMP = options.get("sun_correction_temp")
 MORNING_ENDS = options.get("morning_ends")
 ROOMS = options.get("rooms")
 
-logging.info(msg=f"The latitude is {LATITUDE}")
-logging.info(msg=f"The longitude is {LONGITUDE}")
-logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API}")
-logging.info(msg=f"Control Tado is set to {CONTROL_TADO}")
-logging.debug(msg=f"The Home Assistant Token is {TOKEN}")
+logging.info(msg=f"Latitude: {LATITUDE}")
+logging.info(msg=f"Longitude: {LONGITUDE}")
+logging.info(msg=f"Open Weather API Key: {OPEN_WEATHER_API}")
+logging.info(msg=f"Control Tado: {CONTROL_TADO}")
+logging.debug(msg=f"Home Assistant Token: {TOKEN}")
 
 weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
 home_assistant = HomeAssistantAPI()

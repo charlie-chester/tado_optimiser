@@ -1,6 +1,6 @@
 ---
 name: Tado Optimiser
-version: 1.0.31
+version: 1.0.34
 slug: tado_optimiser
 description: Tado Optimiser
 url: https://github.com/charlie-chester/tado_optimiser
@@ -25,8 +25,8 @@ map:
   - ssl
 options:
   log_level:
-  dummy: []
+#  dummy: []
 schema:
   log_level: list(debug|info|notice|warning|error)?
-  dummy:
-    - str
+#  dummy:
+#    - str

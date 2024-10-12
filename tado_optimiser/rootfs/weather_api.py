@@ -3,6 +3,9 @@ import requests
 from datetime import datetime
 from hass import HomeAssistantAPI
 
+
+logger = logging.getLogger("tado_optimiser")
+
 home_assistant = HomeAssistantAPI()
 
 def convert_time(unix_time):
@@ -24,17 +27,17 @@ class WeatherAPI:
         self.weather_data = {}
 
     def get_weather_data(self):
-        logging.info(msg="Getting weather data")
+        logger.info(msg="Getting weather data")
         fullUrl = f"{self.base_url}lat={self.latitude}&lon={self.longitude}&appid={self.api_key}&units=metric"
-        logging.debug(msg=f"Get weather data fullUrl: {fullUrl}")
+        logger.debug(msg=f"Get weather data fullUrl: {fullUrl}")
         response = requests.get(fullUrl)
         self.weather_data = response.json()
 
         status = response.status_code
         if status == 200:
-            logging.info(msg="Weather data successfully retrieved")
+            logger.info(msg="Weather data successfully retrieved")
         else:
-            logging.error(msg=f"Error getting weather data. Status code: {status}")
+            logger.error(msg=f"Error getting weather data. Status code: {status}")
 
     def current_weather(self):
         current_data = self.weather_data["current"]
@@ -66,7 +69,7 @@ class WeatherAPI:
             }
         }
         home_assistant.update_entity(sensor, payload)
-        logging.info(msg="Current weather entity created / updated")
+        logger.info(msg="Current weather entity created / updated")
 
     def hourly_entities(self):
         hourly_data = self.weather_data["hourly"]
@@ -99,7 +102,7 @@ class WeatherAPI:
                 }
             }
             home_assistant.update_entity(sensor, payload)
-        logging.info(msg="Hourly entities created / updated")
+        logger.info(msg="Hourly entities created / updated")
 
     def daily_entities(self):
         daily_data = self.weather_data["daily"]
@@ -149,4 +152,4 @@ class WeatherAPI:
                 }
             }
             home_assistant.update_entity(sensor, payload)
-        logging.info(msg="Daily entities created / updated")
+        logger.info(msg="Daily entities created / updated")

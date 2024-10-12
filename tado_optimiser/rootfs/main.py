@@ -1,4 +1,5 @@
 import logging
+from logging.handlers import RotatingFileHandler
 import time
 import os
 import yaml
@@ -9,9 +10,6 @@ from weather_api import WeatherAPI
 from hass import HomeAssistantAPI
 
 
-# Sleeps for 3 seconds to allow log to format properly
-time.sleep(3)
-
 # Load the configuration file
 configuration_file = "/data/options.json"
 with open(configuration_file, "r") as file:
@@ -19,15 +17,30 @@ with open(configuration_file, "r") as file:
 
 #  gets the log level from the user and sets the log
 LOG_LEVEL = configurations.get("log_level", "INFO").upper()
-logging.basicConfig(level=getattr(logging, LOG_LEVEL), format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-logging.info(msg="Tado Optimizer starting")
+
+# Set up the logger
+logger = logging.getLogger("tado_optimiser")
+logger.setLevel(getattr(logging, LOG_LEVEL))  # Set the logging level
+
+# Create a rotating file handler (used to handle logging output)
+handler = RotatingFileHandler(filename="/config/logfile.log", maxBytes=1024*1024, backupCount=5)
+handler.setLevel(getattr(logging, LOG_LEVEL))  # Setting level for the handler
+
+# Create a logging format
+formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+handler.setFormatter(formatter)  # Attach the formatter to the handler
+
+# Add the handler to the logger (this is where 'handler' is used)
+logger.addHandler(handler)
+
+logger.info(msg="Tado Optimizer starting")
 
 # Checks if the setting file exists and uploads if false
 if not os.path.exists("/config/settings.yaml"):
     shutil.copy(src="/settings.yaml", dst="/config/settings.yaml")
-    logging.info(msg="Copied settings file to /config")
+    logger.info(msg="Copied settings file to /config")
 else:
-    logging.info(msg="Settings file already exists in /config")
+    logger.info(msg="Settings file already exists in /config")
 
 # Loads the settings file
 settings_file = "/config/settings.yaml"
@@ -46,21 +59,21 @@ MORNING_ENDS = settings.get("morning_ends")
 ROOMS = settings.get("rooms")
 
 # Initial logging of variables
-logging.info(msg=f"Latitude: {LATITUDE}")
-logging.info(msg=f"Longitude: {LONGITUDE}")
-logging.info(msg=f"Open Weather API Key: {OPEN_WEATHER_API}")
-logging.info(msg=f"Control Tado: {CONTROL_TADO}")
-logging.debug(msg=f"Home Assistant Token: {TOKEN}")
+logger.info(msg=f"Latitude: {LATITUDE}")
+logger.info(msg=f"Longitude: {LONGITUDE}")
+logger.info(msg=f"Open Weather API Key: {OPEN_WEATHER_API}")
+logger.info(msg=f"Control Tado: {CONTROL_TADO}")
+logger.debug(msg=f"Home Assistant Token: {TOKEN}")
 
 # Initialises the Home Assistant & Weather API Classes
 weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
 home_assistant = HomeAssistantAPI()
 
 def main():
-    logging.info(msg="*************************************************************************")
-    logging.info(msg="Starting update cycle")
-    logging.info(msg="*************************************************************************")
-    logging.info(msg=f"Outside temperature set to: {OUTSIDE_TEMP} C")
+    logger.info(msg="*************************************************************************")
+    logger.info(msg="Starting update cycle")
+    logger.info(msg="*************************************************************************")
+    logger.info(msg=f"Outside temperature set to: {OUTSIDE_TEMP} C")
 
     # Updates weather data and entities
     weather.get_weather_data()
@@ -72,7 +85,7 @@ def main():
     if CONTROL_TADO:
         tado_control()
     else:
-        logging.info(msg="Tado Control not enabled")
+        logger.info(msg="Tado Control not enabled")
 
 def tado_control():
     # Get Sunrise & current weather conditions
@@ -96,58 +109,58 @@ def tado_control():
         else:
             heating_required = True
 
-    logging.info(msg="*************************************************************************")
+    logger.info(msg="*************************************************************************")
 
     # Iterate through rooms and apply settings
     for room_name, room_data in ROOMS.items():
-        logging.info(msg=room_name.upper().replace('_', ' '))
+        logger.info(msg=room_name.upper().replace('_', ' '))
 
         # Obtain Tado Data
         room_temperature = home_assistant.get_entity_state(f"sensor.{room_name}_temperature")
         room_climate = home_assistant.get_entity_state(f"climate.{room_name}")
 
         # Log entries
-        logging.info(msg=f"Room Temperature: {room_temperature}")
-        logging.info(msg=f"Climate Setting: {room_climate.upper()}")
-        logging.info(msg=f"Temps: Hour 0: {temp_hour_0}, Hour 1: {temp_hour_1}, Hour 2: {temp_hour_2}")
-        logging.info(msg=f"Heating required: {heating_required}")
-        logging.info(msg=f"Sunrise time: {sunrise}")
-        logging.info(msg=f"Current weather - ID: {current_weather_id}, Condition: {current_weather_condition}")
+        logger.info(msg=f"Room Temperature: {room_temperature}")
+        logger.info(msg=f"Climate Setting: {room_climate.upper()}")
+        logger.info(msg=f"Temps: Hour 0: {temp_hour_0}, Hour 1: {temp_hour_1}, Hour 2: {temp_hour_2}")
+        logger.info(msg=f"Heating required: {heating_required}")
+        logger.info(msg=f"Sunrise time: {sunrise}")
+        logger.info(msg=f"Current weather - ID: {current_weather_id}, Condition: {current_weather_condition}")
 
         # Set minimum room temperature based on time and room
         if sunrise <= datetime.now().time() < datetime.now().time().replace(hour=MORNING_ENDS["hour"], minute=MORNING_ENDS["minute"]):
             room_minimum_temp = room_data["morning"]
-            logging.info(msg=f"Morning: Minimum room temperature: {room_minimum_temp} C")
+            logger.info(msg=f"Morning: Minimum room temperature: {room_minimum_temp} C")
 
             # Adjusts room temperature based on sunshine and outside temperature
             if 800 <= current_weather_id <= 802 and current_weather_temperature >= SUN_CORRECTION_TEMP:
                 room_minimum_temp = room_minimum_temp - room_data["sun_correction"]
-                logging.info(msg=f"Sun Correction: {room_data['sun_correction']} C")
-                logging.info(msg=f"Minimum room temperature after sun correction: {room_minimum_temp} C")
+                logger.info(msg=f"Sun Correction: {room_data['sun_correction']} C")
+                logger.info(msg=f"Minimum room temperature after sun correction: {room_minimum_temp} C")
         else:
             room_minimum_temp = room_data["day"]
-            logging.info(msg=f"Afternoon / Evening: Minimum room temperature: {room_minimum_temp} C")
+            logger.info(msg=f"Afternoon / Evening: Minimum room temperature: {room_minimum_temp} C")
 
         # Main logical questions
         if room_climate == "off" and float(room_temperature) < room_minimum_temp:
             home_assistant.set_hvac_mode(entity_id=f"climate.{room_name}", hvac_mode="auto")
-            logging.info(msg=f"Room temperature less than {room_minimum_temp} C and climate set to {room_climate.upper()} turning to auto")
+            logger.info(msg=f"Room temperature less than {room_minimum_temp} C and climate set to {room_climate.upper()} turning to auto")
 
         elif room_climate == "off" and heating_required == True:
             home_assistant.set_hvac_mode(entity_id=f"climate.{room_name}", hvac_mode="auto")
-            logging.info(msg=f"Outside temperature below {OUTSIDE_TEMP} C in the next 3 hours turning to auto")
+            logger.info(msg=f"Outside temperature below {OUTSIDE_TEMP} C in the next 3 hours turning to auto")
 
         elif room_climate == "auto" and heating_required == False and float(room_temperature) >= room_minimum_temp:
             home_assistant.set_hvac_mode(entity_id=f"climate.{room_name}", hvac_mode="off")
-            logging.info(msg=f"Outside temperature above {OUTSIDE_TEMP} in the next 3 hours turning to off")
+            logger.info(msg=f"Outside temperature above {OUTSIDE_TEMP} in the next 3 hours turning to off")
 
         else:
-            logging.info(msg=f"No change needed. The climate will remain: {room_climate.upper()}")
+            logger.info(msg=f"No change needed. The climate will remain: {room_climate.upper()}")
 
-        logging.info(msg="*************************************************************************")
+        logger.info(msg="*************************************************************************")
 
-    logging.info(msg="Update cycle finished")
-    logging.info(msg="*************************************************************************")
+    logger.info(msg="Update cycle finished")
+    logger.info(msg="*************************************************************************")
 
 main()
 

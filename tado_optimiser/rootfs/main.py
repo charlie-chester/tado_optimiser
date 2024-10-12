@@ -3,47 +3,43 @@ import time
 import os
 import yaml
 import schedule
+import shutil
 from datetime import datetime
 from weather_api import WeatherAPI
 from hass import HomeAssistantAPI
 
-
 time.sleep(3)
-options_file = "/data/options.json"
-with open(options_file, "r") as file:
+LOG_LEVEL = os.getenv("log_level", "INFO").upper()
+logging.basicConfig(level=getattr(logging, LOG_LEVEL), format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+logging.info(msg="Tado Optimizer starting")
+
+logging.info(LOG_LEVEL)
+
+if not os.path.exists("/config/settings.yaml"):
+    shutil.copy(src="/settings.yaml", dst="/config/settings.yaml")
+    logging.info(msg="Copied settings.yaml to /config")
+else:
+    logging.info(msg="Settings.json already exists in /config")
+
+settings_file = "/config/settings.yaml"
+with open(settings_file, "r") as file:
     options = yaml.safe_load(file)
 
-LOG_LEVEL = options.get("log_level", "INFO").upper()
-CONTROL_TADO = options.get("control_tado").upper()
+CONTROL_TADO = options.get("control_tado")
 LATITUDE = options.get("latitude")
 LONGITUDE = options.get("longitude")
 OPEN_WEATHER_API = options.get("open_weather_api")
 TOKEN = os.getenv("SUPERVISOR_TOKEN")
-
-logging.basicConfig(level=getattr(logging, LOG_LEVEL),
-                    format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s",
-                    datefmt="%Y-%m-%d %H:%M:%S")
-
-logging.info(msg="Tado Optimizer starting")
+OUTSIDE_TEMP = options.get("outside_temp")
+SUN_CORRECTION_TEMP = options.get("sun_correction_temp")
+MORNING_ENDS = options.get("morning_ends")
+ROOMS = options.get("rooms")
 
 logging.info(msg=f"The latitude is {LATITUDE}")
 logging.info(msg=f"The longitude is {LONGITUDE}")
 logging.info(msg=f"The Open Weather API Key is {OPEN_WEATHER_API}")
 logging.info(msg=f"Control Tado is set to {CONTROL_TADO}")
 logging.debug(msg=f"The Home Assistant Token is {TOKEN}")
-
-ROOMS = {
-    "conservatory": {"morning": 17, "day": 18, "sun_correction": 2},
-    "dining_room": {"morning": 17, "day": 18, "sun_correction": 2},
-    "lounge": {"morning": 17, "day": 18, "sun_correction": 0},
-    "office": {"morning": 17, "day": 17, "sun_correction": 0},
-    "bedroom": {"morning": 17, "day": 17, "sun_correction": 0},
-    "pink_room": {"morning": 17, "day": 17, "sun_correction": 0},
-}
-
-OUTSIDE_TEMP = 12
-SUN_CORRECTION_TEMP = 10
-MORNING_ENDS = (15, 0)
 
 weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
 home_assistant = HomeAssistantAPI()
@@ -59,7 +55,7 @@ def main():
     weather.hourly_entities()
     weather.daily_entities()
 
-    if CONTROL_TADO == "YES":
+    if CONTROL_TADO:
         tado_control()
     else:
         logging.info(msg="Tado Control not enabled")
@@ -105,7 +101,7 @@ def tado_control():
         logging.info(msg=f"Current weather - ID: {current_weather_id}, Condition: {current_weather_condition}")
 
         # Set minimum room temperature based on time and room
-        if sunrise <= datetime.now().time() < datetime.now().time().replace(hour=MORNING_ENDS[0], minute=MORNING_ENDS[1]):
+        if sunrise <= datetime.now().time() < datetime.now().time().replace(hour=MORNING_ENDS["hour"], minute=MORNING_ENDS["minute"]):
             room_minimum_temp = room_data["morning"]
             logging.info(msg=f"Morning: Minimum room temperature: {room_minimum_temp} C")
 

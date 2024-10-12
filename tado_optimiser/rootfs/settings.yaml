@@ -1,0 +1,34 @@
+latitude:
+longitude:
+open_weather_api:
+control_tado: true
+outside_temp: 12
+sun_correction_temp: 10
+morning_ends:
+  hour: 15
+  minute: 00
+rooms:
+  conservatory:
+    morning: 17
+    day: 18
+    sun_correction: 2
+  dining_room:
+    morning: 17
+    day: 18
+    sun_correction: 2
+  lounge:
+    morning: 17
+    day: 18
+    sun_correction: 0
+  office:
+    morning: 17
+    day: 17
+    sun_correction: 0
+  bedroom:
+    morning: 17
+    day: 17
+    sun_correction: 0
+  pink_room:
+    morning: 17
+    day: 17
+    sun_correction: 0

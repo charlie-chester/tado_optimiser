@@ -1,0 +1,14 @@
+{
+    "conservatory":
+    {"morning": 17, "day": 18, "sun_correction": 2},
+    "dining_room":
+    {"morning": 17, "day": 18, "sun_correction": 2},
+    "lounge":
+    {"morning": 17, "day": 18, "sun_correction": 0},
+    "office":
+    {"morning": 17, "day": 17, "sun_correction": 0},
+    "bedroom":
+    {"morning": 17, "day": 17, "sun_correction": 0},
+    "pink_room":
+    {"morning": 17, "day": 17, "sun_correction": 0},
+}

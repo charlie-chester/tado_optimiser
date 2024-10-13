@@ -1,4 +1,6 @@
-control_tado: true
+# If you want to control Tado then change to true and set the room names as per your Tado setup
+
+control_tado: false
 outside_temp: 12
 sun_correction_temp: 10
 morning_ends:

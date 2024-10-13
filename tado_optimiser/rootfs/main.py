@@ -2,10 +2,10 @@ import logging
 from logging.handlers import RotatingFileHandler
 import time
 import os
+from datetime import datetime
 import yaml
 import schedule
 import shutil
-from datetime import datetime
 from weather_api import WeatherAPI
 from hass import HomeAssistantAPI
 
@@ -15,7 +15,7 @@ configuration_file = "/data/options.json"
 with open(configuration_file, "r") as file:
     configurations = yaml.safe_load(file)
 
-#  gets the log level from the user and sets the log
+#  gets the log level from the user
 LOG_LEVEL = configurations.get("log_level", "INFO").upper()
 
 # Set up the logger

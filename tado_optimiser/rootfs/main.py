@@ -25,9 +25,9 @@ logging.info(msg="Tado Optimizer starting")
 # Checks if the setting file exists and uploads if false
 if not os.path.exists("/config/settings.yaml"):
     shutil.copy(src="/settings.yaml", dst="/config/settings.yaml")
-    logging.info(msg="Copied settings.yaml to /config")
+    logging.info(msg="Copied settings file to /config")
 else:
-    logging.info(msg="Settings.json already exists in /config")
+    logging.info(msg="Settings file already exists in /config")
 
 # Loads the settings file
 settings_file = "/config/settings.yaml"

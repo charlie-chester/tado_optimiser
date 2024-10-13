@@ -1,4 +1,5 @@
 # If you want to control Tado then change to true and set the room names as per your Tado setup
+# You will need to restart the addon after making changes
 
 control_tado: false
 outside_temp: 12

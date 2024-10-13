@@ -1,6 +1,3 @@
-latitude:
-longitude:
-open_weather_api:
 control_tado: true
 outside_temp: 12
 sun_correction_temp: 10

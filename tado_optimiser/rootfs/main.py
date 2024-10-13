@@ -9,34 +9,33 @@ from weather_api import WeatherAPI
 from hass import HomeAssistantAPI
 
 time.sleep(3)
-options_file = "/data/options.json"
-with open(options_file, "r") as file:
-    options = yaml.safe_load(file)
+configuration_file = "/data/options.json"
+with open(configuration_file, "r") as file:
+    configurations = yaml.safe_load(file)
 
-LOG_LEVEL = options.get("log_level", "INFO").upper()
+LOG_LEVEL = configurations.get("log_level", "INFO").upper()
 logging.basicConfig(level=getattr(logging, LOG_LEVEL), format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 logging.info(msg="Tado Optimizer starting")
 
-
-# if not os.path.exists("/config/settings.yaml"):
-#     shutil.copy(src="/settings.yaml", dst="/config/settings.yaml")
-#     logging.info(msg="Copied settings.yaml to /config")
-# else:
-#     logging.info(msg="Settings.json already exists in /config")
+if not os.path.exists("/config/settings.yaml"):
+    shutil.copy(src="/settings.yaml", dst="/config/settings.yaml")
+    logging.info(msg="Copied settings.yaml to /config")
+else:
+    logging.info(msg="Settings.json already exists in /config")
 
 settings_file = "/config/settings.yaml"
 with open(settings_file, "r") as file:
-    options = yaml.safe_load(file)
+    settings = yaml.safe_load(file)
 
-CONTROL_TADO = options.get("control_tado")
-LATITUDE = options.get("latitude")
-LONGITUDE = options.get("longitude")
-OPEN_WEATHER_API = options.get("open_weather_api")
+CONTROL_TADO = settings.get("control_tado")
+LATITUDE = configurations.get("latitude")
+LONGITUDE = configurations.get("longitude")
+OPEN_WEATHER_API = configurations.get("open_weather_api")
 TOKEN = os.getenv("SUPERVISOR_TOKEN")
-OUTSIDE_TEMP = options.get("outside_temp")
-SUN_CORRECTION_TEMP = options.get("sun_correction_temp")
-MORNING_ENDS = options.get("morning_ends")
-ROOMS = options.get("rooms")
+OUTSIDE_TEMP = settings.get("outside_temp")
+SUN_CORRECTION_TEMP = settings.get("sun_correction_temp")
+MORNING_ENDS = settings.get("morning_ends")
+ROOMS = settings.get("rooms")
 
 logging.info(msg=f"Latitude: {LATITUDE}")
 logging.info(msg=f"Longitude: {LONGITUDE}")

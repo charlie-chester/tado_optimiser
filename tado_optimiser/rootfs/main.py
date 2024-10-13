@@ -8,25 +8,33 @@ from datetime import datetime
 from weather_api import WeatherAPI
 from hass import HomeAssistantAPI
 
+
+# Sleeps for 3 seconds to allow log to format properly
 time.sleep(3)
+
+# Load the configuration file
 configuration_file = "/data/options.json"
 with open(configuration_file, "r") as file:
     configurations = yaml.safe_load(file)
 
+#  gets the log level from the user and sets the log
 LOG_LEVEL = configurations.get("log_level", "INFO").upper()
 logging.basicConfig(level=getattr(logging, LOG_LEVEL), format="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 logging.info(msg="Tado Optimizer starting")
 
+# Checks if the setting file exists and uploads if false
 if not os.path.exists("/config/settings.yaml"):
     shutil.copy(src="/settings.yaml", dst="/config/settings.yaml")
     logging.info(msg="Copied settings.yaml to /config")
 else:
     logging.info(msg="Settings.json already exists in /config")
 
+# Loads the settings file
 settings_file = "/config/settings.yaml"
 with open(settings_file, "r") as file:
     settings = yaml.safe_load(file)
 
+# Sets the Global variables
 CONTROL_TADO = settings.get("control_tado")
 LATITUDE = configurations.get("latitude")
 LONGITUDE = configurations.get("longitude")
@@ -37,12 +45,14 @@ SUN_CORRECTION_TEMP = settings.get("sun_correction_temp")
 MORNING_ENDS = settings.get("morning_ends")
 ROOMS = settings.get("rooms")
 
+# Initial logging of variables
 logging.info(msg=f"Latitude: {LATITUDE}")
 logging.info(msg=f"Longitude: {LONGITUDE}")
 logging.info(msg=f"Open Weather API Key: {OPEN_WEATHER_API}")
 logging.info(msg=f"Control Tado: {CONTROL_TADO}")
 logging.debug(msg=f"Home Assistant Token: {TOKEN}")
 
+# Initialises the Home Assistant & Weather API Classes
 weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
 home_assistant = HomeAssistantAPI()
 
@@ -52,11 +62,13 @@ def main():
     logging.info(msg="*************************************************************************")
     logging.info(msg=f"Outside temperature set to: {OUTSIDE_TEMP} C")
 
+    # Updates weather data and entities
     weather.get_weather_data()
     weather.current_weather()
     weather.hourly_entities()
     weather.daily_entities()
 
+    # Checks if user wants Tado control. If true continues
     if CONTROL_TADO:
         tado_control()
     else:
@@ -107,7 +119,7 @@ def tado_control():
             room_minimum_temp = room_data["morning"]
             logging.info(msg=f"Morning: Minimum room temperature: {room_minimum_temp} C")
 
-            # Adjusts room temperature based on sunshine
+            # Adjusts room temperature based on sunshine and outside temperature
             if 800 <= current_weather_id <= 802 and current_weather_temperature >= SUN_CORRECTION_TEMP:
                 room_minimum_temp = room_minimum_temp - room_data["sun_correction"]
                 logging.info(msg=f"Sun Correction: {room_data['sun_correction']} C")
@@ -139,9 +151,11 @@ def tado_control():
 
 main()
 
+#  Schedule to run every 10 minutes
 for minute in ["00:05", "10:00", "20:00", "30:00", "40:00", "50:00"]:
     schedule.every().hour.at(minute).do(main)
 
+# Keeps schedule running
 while True:
     schedule.run_pending()
     time.sleep(1)

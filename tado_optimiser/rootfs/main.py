@@ -18,11 +18,11 @@ logging.basicConfig(level=getattr(logging, LOG_LEVEL), format="%(asctime)s %(lev
 logging.info(msg="Tado Optimizer starting")
 
 
-if not os.path.exists("/config/settings.yaml"):
-    shutil.copy(src="/settings.yaml", dst="/config/settings.yaml")
-    logging.info(msg="Copied settings.yaml to /config")
-else:
-    logging.info(msg="Settings.json already exists in /config")
+# if not os.path.exists("/config/settings.yaml"):
+#     shutil.copy(src="/settings.yaml", dst="/config/settings.yaml")
+#     logging.info(msg="Copied settings.yaml to /config")
+# else:
+#     logging.info(msg="Settings.json already exists in /config")
 
 settings_file = "/config/settings.yaml"
 with open(settings_file, "r") as file:

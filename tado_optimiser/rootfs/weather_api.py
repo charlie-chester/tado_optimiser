@@ -48,6 +48,7 @@ class WeatherAPI:
                 "unit_of_measurement": "°C",
                 "friendly_name": convert_time(current_data["dt"]),
                 "icon": "mdi:thermometer",
+                "Time": convert_time(current_data["dt"]),
                 "Sunrise": convert_time(current_data["sunrise"]),
                 "Sunset": convert_time(current_data["sunset"]),
                 "Temp": current_data["temp"],

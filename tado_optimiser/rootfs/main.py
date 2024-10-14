@@ -165,7 +165,7 @@ def tado_control():
 main()
 
 #  Schedule to run every 10 minutes
-for minute in ["00:05", "10:00", "20:00", "30:00", "40:00", "50:00"]:
+for minute in ["00:00", "10:00", "20:00", "30:00", "40:00", "50:00"]:
     schedule.every().hour.at(minute).do(main)
 
 # Keeps schedule running

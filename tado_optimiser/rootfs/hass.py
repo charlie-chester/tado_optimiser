@@ -26,7 +26,8 @@ class HomeAssistantAPI:
     def get_entity_state(self, sensor):
         fullUrl = f"{self.base_url}/states/{sensor}"
         response = requests.get(fullUrl, headers=self.headers)
-        return response.json()["state"]
+        state = response.json().get("state", "Entity not found")
+        return state
 
     def set_hvac_mode(self, entity_id, hvac_mode):
         fullUrl = f"{self.base_url}/services/climate/set_hvac_mode"

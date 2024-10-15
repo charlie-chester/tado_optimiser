@@ -76,16 +76,16 @@ def main():
     logger.info(msg=f"Outside temperature set to: {OUTSIDE_TEMP} C")
 
     # Updates weather data and entities
-    weather.get_weather_data()
-    weather.current_weather()
-    weather.hourly_entities()
-    weather.daily_entities()
+    if weather.get_weather_data():
+        weather.current_weather()
+        weather.hourly_entities()
+        weather.daily_entities()
 
-    # Checks if user wants Tado control. If true continues
-    if CONTROL_TADO:
-        tado_control()
-    else:
-        logger.info(msg="Tado Control not enabled")
+        # Checks if user wants Tado control. If true continues
+        if CONTROL_TADO:
+            tado_control()
+        else:
+            logger.info(msg="Tado Control not enabled")
 
 def tado_control():
     # Get Sunrise & current weather conditions
@@ -115,9 +115,17 @@ def tado_control():
     for room_name, room_data in ROOMS.items():
         logger.info(msg=room_name.upper().replace('_', ' '))
 
-        # Obtain Tado Data
+        # Obtain Tado Data & Skip if bad data
         room_temperature = home_assistant.get_entity_state(f"sensor.{room_name}_temperature")
+        if room_temperature == "Entity not found":
+            logger.error(msg=f"Room Temperature reporting: {room_temperature}. Skipping room")
+            logger.info(msg="*************************************************************************")
+            continue
         room_climate = home_assistant.get_entity_state(f"climate.{room_name}")
+        if room_climate == "Entity not found":
+            logger.error(msg=f"Climate Mode reporting: {room_climate}. Skipping room")
+            logger.info(msg="*************************************************************************")
+            continue
 
         # Log entries
         logger.info(msg=f"Room Temperature: {room_temperature}")

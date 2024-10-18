@@ -1,34 +1,37 @@
 # If you want to control Tado then change to true and set the room names as per your Tado setup
 # You will need to restart the addon after making changes
 
-control_tado: false
+control_tado: True
 outside_temp: 12
 sun_correction_temp: 10
-morning_ends:
-  hour: 15
-  minute: 00
 rooms:
   conservatory:
-    morning: 17
     day: 18
+    evening: 18
+    night: 17
     sun_correction: 2
   dining_room:
-    morning: 17
     day: 18
-    sun_correction: 2
+    evening: 20
+    night: 17
+    sun_correction: 0
   lounge:
-    morning: 17
     day: 18
+    evening: 20
+    night: 17
     sun_correction: 0
   office:
-    morning: 17
     day: 17
+    evening: 17
+    night: 17
     sun_correction: 0
   bedroom:
-    morning: 17
     day: 17
+    evening: 17
+    night: 17
     sun_correction: 0
   pink_room:
-    morning: 17
     day: 17
+    evening: 17
+    night: 17
     sun_correction: 0

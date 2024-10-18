@@ -39,3 +39,13 @@ class HomeAssistantAPI:
             logger.debug(msg=f"HVAC mode set to '{hvac_mode}' for entity: {entity_id}")
         else:
             logger.debug(msg=f"Failed to set HVAC mode to '{hvac_mode}' for entity: {entity_id}")
+
+    def set_temperature(self, entity_id, temperature):
+        fullUrl = f"{self.base_url}/services/climate/set_temperature"
+        payload = {"entity_id": entity_id, "temperature": temperature}
+        response = requests.post(fullUrl, headers=self.headers, json=payload)
+        logger.debug(msg=f"Status code: {response.status_code}")
+        if response.status_code == 200:
+            logger.debug(msg=f"Temperature set to '{temperature}' for entity: {entity_id}")
+        else:
+            logger.debug(msg=f"Failed to set temperature to '{temperature}' for entity: {entity_id}")

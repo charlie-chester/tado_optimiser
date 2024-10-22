@@ -45,6 +45,7 @@ class HomeAssistantAPI:
         payload = {"entity_id": entity_id, "temperature": temperature}
         response = requests.post(fullUrl, headers=self.headers, json=payload)
         logger.debug(msg=f"Status code: {response.status_code}")
+
         if response.status_code == 200:
             logger.debug(msg=f"Temperature set to '{temperature}' for entity: {entity_id}")
         else:

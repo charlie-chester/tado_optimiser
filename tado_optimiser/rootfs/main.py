@@ -136,7 +136,7 @@ def tado_control():
         # Adjust Target Temperature
         target_temperature -= room.away_adjust(target_temperature=target_temperature)
 
-        # Create / Update target Temperature Entity
+        # Create / Update Target Temperature Entity
         sensor = f"sensor.{room.name}_target_temperature"
         payload = {
             "state": target_temperature,

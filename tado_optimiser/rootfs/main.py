@@ -128,13 +128,25 @@ def tado_control():
 
         # Log initial entries
         logger.info(msg=f"Room Temperature: {float(room.temperature):.2f} - Climate Setting: {room.climate.upper()} - Tado Mode: {room.tado_mode.upper()}")
-        logger.info(msg=f"Temps: {temp_hour_0:.2f} - {temp_hour_1:.2f} - {temp_hour_2:.2f}")
-        logger.info(msg=f"Sunrise time: {sunrise} - Sunset time: {sunset} - Solar Percentage: {solar_percentage}%")
+        logger.info(msg=f"Outside Temperatures in the next 3 hours: {temp_hour_0:.2f} - {temp_hour_1:.2f} - {temp_hour_2:.2f}")
+        logger.info(msg=f"Sunrise: {sunrise} - Sunset: {sunset} - Solar Percentage: {solar_percentage}%")
         logger.info(msg=f"Current weather - ID: {current_weather_id} - Condition: {current_weather_condition}")
         logger.info(msg=f"Time Sector: {time_sector.upper()} - Target Temperature: {target_temperature:.2f}")
 
         # Adjust Target Temperature
-        target_temperature = room.away_adjust(target_temperature=target_temperature)
+        target_temperature -= room.away_adjust(target_temperature=target_temperature)
+
+        # Create / Update target Temperature Entity
+        sensor = f"sensor.{room.name}_target_temperature"
+        payload = {
+            "state": target_temperature,
+            "attributes": {
+                "unit_of_measurement": "°C",
+                "friendly_name": f"{room.name.replace('_', ' ').title()} Target",
+                "icon": "mdi:thermometer",
+            }
+        }
+        home_assistant.update_entity(sensor=sensor, payload=payload)
 
         # Control rooms
         room.set_hvac_mode(target_temperature=target_temperature, temp_hour_0=temp_hour_0, temp_hour_1=temp_hour_1)

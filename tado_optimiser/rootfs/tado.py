@@ -1,5 +1,6 @@
 import logging
 import yaml
+from datetime import datetime
 from hass import HomeAssistantAPI
 
 def load_config(url):
@@ -14,6 +15,7 @@ home_assistant = HomeAssistantAPI()
 class Tado:
     def __init__(self, name):
         self.name = name
+        self.settings = None
         self.day = None
         self.evening = None
         self.night = None
@@ -28,15 +30,16 @@ class Tado:
         self.tado_mode = None
         self.temperature = None
         self.window = None
+        self.away_time = ""
         self.update_sensors()
 
     def update_sensors(self):
         # Reloads the settings file then refreshes data
-        settings = load_config(url="/config/settings.yaml")
-        self.day = settings["rooms"][self.name]["day"]
-        self.evening = settings["rooms"][self.name]["evening"]
-        self.night = settings["rooms"][self.name]["night"]
-        self.sun_correction = settings["rooms"][self.name]["sun_correction"]
+        self.settings = load_config(url="/config/settings.yaml")
+        self.day = self.settings["rooms"][self.name]["day"]
+        self.evening = self.settings["rooms"][self.name]["evening"]
+        self.night = self.settings["rooms"][self.name]["night"]
+        self.sun_correction = self.settings["rooms"][self.name]["sun_correction"]
 
         # Gets these values from Tado direct
         self.climate = home_assistant.get_entity_state(sensor=f"climate.{self.name}")
@@ -70,9 +73,30 @@ class Tado:
             logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to OFF")
 
     def away_adjust(self, target_temperature):
-        if self.tado_mode == "AWAY":
-            adjusted_temperature = target_temperature * 0.8
-            logger.info(msg=f"{self.name.upper().replace('_', ' ')} in AWAY mode Temperature adjusted from: {target_temperature:.2f} to: {adjusted_temperature:.2f}")
-            return adjusted_temperature
+        if self.tado_mode == "HOME":
+            self.away_time = ""
+            return 0
         else:
-            return target_temperature
+            if self.away_time == "":
+                self.away_time = datetime.now()
+                logger.info(msg="First cycle in Away mode")
+                adjusted_temperature = target_temperature * 0.1
+                logger.info(msg=f"{self.name.upper().replace('_', ' ')} in AWAY mode Temperature reduced by 10 % to {target_temperature - adjusted_temperature:.2f}")
+                return adjusted_temperature
+            else:
+                time_difference = (datetime.now() - self.away_time).total_seconds() / 3600
+                logger.info(msg=f"Time Now: {datetime.now()} - Away Time: {self.away_time} = {time_difference:.2f} hours")
+                if time_difference < 12:
+                    logger.info(msg="0 to 12 hour")
+                    adjusted_temperature = target_temperature * 0.1
+                    logger.info(msg=f"{self.name.upper().replace('_', ' ')} in AWAY mode for {time_difference:.2f} hours. Target Temperature reduced by 10 % to {target_temperature - adjusted_temperature:.2f}")
+                    return adjusted_temperature
+                elif 12 <= time_difference < 24:
+                    logger.info(msg="12 to 24 hours")
+                    adjusted_temperature = target_temperature * 0.2
+                    logger.info(msg=f"{self.name.upper().replace('_', ' ')} in AWAY mode for {time_difference:.2f} hours. Target Temperature reduced by 20 % to {target_temperature - adjusted_temperature:.2f}")
+                    return adjusted_temperature
+                else:
+                    logger.info(msg="24 hours & over")
+                    logger.info(msg=f"{self.name.upper().replace('_', ' ')} in AWAY mode over {time_difference:.2f} hours. Target Temperature set to FROST PROTECTION at 10 C")
+                    return 10

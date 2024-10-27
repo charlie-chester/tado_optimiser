@@ -20,7 +20,7 @@ class Tado:
         self.evening = None
         self.night = None
         self.sun_correction = None
-        self.climate = None
+        self.climate_gas = None
         self.connectivity = None
         self.early_start = None
         self.heating = None
@@ -31,7 +31,11 @@ class Tado:
         self.temperature = None
         self.window = None
         self.away_time = ""
-        self.update_sensors()
+        self.electric_override = None
+        self.gas_radiator_power = None
+        self.electric_radiator_power = None
+        self.electric_radiator_name = None
+        self.climate_electric = None
 
     def update_sensors(self):
         # Reloads the settings file then refreshes data
@@ -40,9 +44,13 @@ class Tado:
         self.evening = self.settings["rooms"][self.name]["evening"]
         self.night = self.settings["rooms"][self.name]["night"]
         self.sun_correction = self.settings["rooms"][self.name]["sun_correction"]
+        self.electric_override = self.settings["rooms"][self.name]["electric_override"]
+        self.gas_radiator_power = self.settings["rooms"][self.name]["gas_radiator_power"]
+        self.electric_radiator_power = self.settings["rooms"][self.name]["electric_radiator_power"]
+        self.electric_radiator_name = self.settings["rooms"][self.name]["electric_radiator_name"]
 
         # Gets these values from Tado direct
-        self.climate = home_assistant.get_entity_state(sensor=f"climate.{self.name}")
+        self.climate_gas = home_assistant.get_entity_state(sensor=f"climate.{self.name}")
         self.connectivity = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_connectivity")
         self.early_start = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_early_start")
         self.heating = home_assistant.get_entity_state(sensor=f"sensor.{self.name}_heating")
@@ -50,27 +58,73 @@ class Tado:
         self.overlay = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_overlay")
         self.power = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_power")
         self.tado_mode = home_assistant.get_entity_state(sensor=f"sensor.{self.name}_tado_mode")
-        self.temperature = home_assistant.get_entity_state(sensor=f"sensor.{self.name}_temperature")
+        self.temperature = float(home_assistant.get_entity_state(sensor=f"sensor.{self.name}_temperature"))
         self.window = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_window")
 
-    def set_hvac_mode(self, target_temperature, temp_hour_0, temp_hour_1):
+        # Gets these value from electric alternative
+        self.climate_electric = home_assistant.get_entity_state(sensor=f"climate.{self.electric_radiator_name}")
+
+    def should_use_electric_override(self, electric_price, gas_price):
+        if not self.electric_override:
+            return False
+        else:
+            kwh_gas = self.gas_radiator_power / 1000
+            kwh_electric = self.electric_radiator_power / 1000
+            gas_cost_per_hour = kwh_gas * gas_price
+            electric_cost_per_hour = kwh_electric * electric_price
+            logger.info(msg=f"Electric Cost Per Hour {electric_cost_per_hour:.2f} pence")
+            logger.info(msg=f"Gas Cost Per Hour {gas_cost_per_hour:.2f} pence")
+            return electric_cost_per_hour < gas_cost_per_hour
+
+    def set_hvac_mode(self, target_temperature, temp_hour_0, temp_hour_1, electric_price, gas_price):
         if temp_hour_0 >= target_temperature or temp_hour_1 >= target_temperature:
             logger.info(msg=f"Temp Hour 0: {temp_hour_0:.2f} or Temp Hour 1: {temp_hour_1:.2f} is the same or higher than the Target Temperature {target_temperature:.2f}")
-            home_assistant.set_hvac_mode(entity_id=f"climate.{self.name}", hvac_mode="off")
+
+            if self.climate_gas != "off":
+                home_assistant.set_hvac_mode(entity_id=f"climate.{self.name}", hvac_mode="off")
+            if self.electric_override:
+                if self.climate_electric != "off":
+                    home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="off")
+
             logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to OFF")
 
-        elif float(self.temperature) < target_temperature:
-            logger.info(msg=f"The Actual Temperature {float(self.temperature):.2f} is lower than the Target Temperature {target_temperature:.2f}")
-            home_assistant.set_temperature(entity_id=f"climate.{self.name}", temperature=target_temperature)
-            logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to {target_temperature:.2f}")
-
-        elif float(self.temperature) >= target_temperature:
-            if float(self.temperature) == target_temperature:
-                logger.info(msg=f"The Actual Temperature {float(self.temperature):.2f} is the same as the Target Temperature {target_temperature:.2f}")
+        elif self.temperature >= target_temperature:
+            if self.temperature == target_temperature:
+                logger.info(msg=f"The Actual Temperature {self.temperature:.2f} is the same as the Target Temperature {target_temperature:.2f}")
             else:
-                logger.info(msg=f"The Actual Temperature {float(self.temperature):.2f} is higher than the Target Temperature {target_temperature:.2f}")
-            home_assistant.set_hvac_mode(entity_id=f"climate.{self.name}", hvac_mode="off")
+                logger.info(msg=f"The Actual Temperature {self.temperature:.2f} is higher than the Target Temperature {target_temperature:.2f}")
+
+            if self.climate_gas != "off":
+                home_assistant.set_hvac_mode(entity_id=f"climate.{self.name}", hvac_mode="off")
+            if self.electric_override:
+                if self.climate_electric != "off":
+                    home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="off")
+
             logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to OFF")
+
+        else:
+            logger.info(msg=f"The Actual Temperature {self.temperature:.2f} is lower than the Target Temperature {target_temperature:.2f}")
+            if self.should_use_electric_override(electric_price=electric_price, gas_price=gas_price):
+                logger.info(msg=f"{self.name.upper().replace('_', ' ')} Using electric Override")
+
+                if self.climate_gas != "off":
+                    home_assistant.set_hvac_mode(entity_id=f"climate.{self.name}", hvac_mode="off")
+
+                home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="heat")
+                home_assistant.set_temperature(entity_id=f"climate.{self.electric_radiator_name}", temperature=target_temperature)
+            else:
+                if self.electric_override:
+                    logger.info(msg=f"{self.name.upper().replace('_', ' ')} Using Gas")
+                else:
+                    logger.info(msg=f"{self.name.upper().replace('_', ' ')} Electric Override not enabled")
+
+                if self.electric_override:
+                    if self.climate_electric != "off":
+                        home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="off")
+
+                home_assistant.set_temperature(entity_id=f"climate.{self.name}", temperature=target_temperature)
+
+            logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to {target_temperature:.2f}")
 
     def away_adjust(self, target_temperature):
         if self.tado_mode == "HOME":

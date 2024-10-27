@@ -4,28 +4,52 @@ rooms:
     evening: 18
     night: 17
     sun_correction: 2
+    electric_override: True
+    gas_radiator_power: 2800
+    electric_radiator_power: 2000
+    electric_radiator_name: conservatory_electric_radiator
   dining_room:
     day: 18
     evening: 18
     night: 17
     sun_correction: 0
+    electric_override: False
+    gas_radiator_power: 0
+    electric_radiator_power: 0
+    electric_radiator_name:
   lounge:
     day: 18
     evening: 20
     night: 17
     sun_correction: 0
+    electric_override: False
+    gas_radiator_power: 0
+    electric_radiator_power: 0
+    electric_radiator_name:
   office:
     day: 17
     evening: 17
     night: 17
     sun_correction: 0
+    electric_override: False
+    gas_radiator_power: 0
+    electric_radiator_power: 0
+    electric_radiator_name:
   bedroom:
     day: 17
     evening: 17
     night: 17
     sun_correction: 0
+    electric_override: False
+    gas_radiator_power: 0
+    electric_radiator_power: 0
+    electric_radiator_name:
   pink_room:
     day: 17
     evening: 17
     night: 17
     sun_correction: 0
+    electric_override: False
+    gas_radiator_power: 0
+    electric_radiator_power: 0
+    electric_radiator_name:

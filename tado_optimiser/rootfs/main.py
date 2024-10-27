@@ -6,8 +6,9 @@ from datetime import datetime
 import yaml
 import schedule
 import shutil
-from weather_api import WeatherAPI
 from hass import HomeAssistantAPI
+from weather_api import WeatherAPI
+from octopus_api import Octopus
 from tado import Tado
 
 
@@ -32,6 +33,9 @@ def get_time_sector(sunrise, sunset):
         time_sector = "night"
     return time_sector
 
+def log_line_break():
+    logger.info(msg="***************************************************************************************")
+
 # Set Global from System
 TOKEN = os.getenv("SUPERVISOR_TOKEN")
 
@@ -44,6 +48,8 @@ LATITUDE = configurations.get("latitude")
 LONGITUDE = configurations.get("longitude")
 OPEN_WEATHER_API = configurations.get("open_weather_api")
 CONTROL_TADO = configurations.get("control_tado")
+OCTOPUS_API = configurations.get("octopus_api")
+OCTOPUS_ACCOUNT = configurations.get("octopus_account")
 
 # Set up the logger
 logger = logging.getLogger("tado_optimiser")
@@ -67,9 +73,10 @@ logger.debug(msg=f"Open Weather API Key: {OPEN_WEATHER_API}")
 logger.info(msg=f"Control Tado: {CONTROL_TADO}")
 logger.debug(msg=f"Home Assistant Token: {TOKEN}")
 
-# Initialises Home Assistant & Weather API Classes
-weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
+# Initialises Home Assistant, Weather & Octopus Classes
 home_assistant = HomeAssistantAPI()
+weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
+octopus = Octopus(octopus_api=OCTOPUS_API, octopus_account=OCTOPUS_ACCOUNT)
 
 # Initialise Tado Class & all Thermostats
 THERMOSTATS = []
@@ -82,9 +89,9 @@ else:
 
 
 def main():
-    logger.info(msg="*************************************************************************")
+    log_line_break()
     logger.info(msg="Starting update cycle")
-    logger.info(msg="*************************************************************************")
+    log_line_break()
 
     # Updates weather data and entities
     if weather.get_weather_data():
@@ -106,6 +113,10 @@ def tado_control():
     current_weather_condition = weather.weather_data["current"]["weather"][0]["description"]
     solar_percentage = home_assistant.get_entity_state(sensor="sensor.home_solar_percentage")
 
+    # Gets Electricity and Gas Prices
+    electric_price = float(octopus.get_current_electricity_price())
+    gas_price = float(octopus.get_current_gas_price())
+
     # Calculates time sector
     time_sector = get_time_sector(sunrise=sunrise, sunset=sunset)
 
@@ -114,7 +125,7 @@ def tado_control():
     temp_hour_1 = weather.weather_data["hourly"][1]["temp"]
     temp_hour_2 = weather.weather_data["hourly"][2]["temp"]
 
-    logger.info(msg="*************************************************************************")
+    log_line_break()
 
     # Iterate through rooms and apply settings
     for room in THERMOSTATS:
@@ -127,9 +138,9 @@ def tado_control():
         target_temperature = getattr(room, time_sector)
 
         # Log initial entries
-        logger.info(msg=f"Room Temperature: {float(room.temperature):.2f} - Climate Setting: {room.climate.upper()} - Tado Mode: {room.tado_mode.upper()}")
+        logger.info(msg=f"Temperature: {room.temperature:.2f} - Climate: {room.climate_gas.upper()} - Mode: {room.tado_mode.upper()} - Electric Override: {str(room.electric_override).upper()}")
         logger.info(msg=f"Outside Temperatures in the next 3 hours: {temp_hour_0:.2f} - {temp_hour_1:.2f} - {temp_hour_2:.2f}")
-        logger.info(msg=f"Sunrise: {sunrise} - Sunset: {sunset} - Solar Percentage: {solar_percentage}%")
+        logger.info(msg=f"Sunrise: {sunrise} - Sunset: {sunset} - Solar Percentage: {solar_percentage} %")
         logger.info(msg=f"Current weather - ID: {current_weather_id} - Condition: {current_weather_condition}")
         logger.info(msg=f"Time Sector: {time_sector.upper()} - Target Temperature: {target_temperature:.2f}")
 
@@ -149,12 +160,18 @@ def tado_control():
         home_assistant.update_entity(sensor=sensor, payload=payload)
 
         # Control rooms
-        room.set_hvac_mode(target_temperature=target_temperature, temp_hour_0=temp_hour_0, temp_hour_1=temp_hour_1)
+        room.set_hvac_mode(
+            target_temperature=target_temperature,
+            temp_hour_0=temp_hour_0,
+            temp_hour_1=temp_hour_1,
+            electric_price=electric_price,
+            gas_price=gas_price,
+        )
 
-        logger.info(msg="*************************************************************************")
+        log_line_break()
 
     logger.info(msg="Update cycle finished")
-    logger.info(msg="*************************************************************************")
+    log_line_break()
 
 main()
 

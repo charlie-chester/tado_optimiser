@@ -17,9 +17,6 @@ class Octopus:
         self.agile_rates_last_updated = ""
         self.gas_rates = {}
         self.gas_rates_last_updated = ""
-        # self.update_account_details()
-        # self.update_agile_rates()
-        # self.update_gas_rates()
 
     def action_get(self, fullUrl):
         response = requests.get(fullUrl, auth=HTTPBasicAuth(username=self.user_name, password=self.pass_word))

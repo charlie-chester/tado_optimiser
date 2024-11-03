@@ -76,7 +76,7 @@ home_assistant = HomeAssistantAPI()
 weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
 octopus = Octopus(octopus_api=OCTOPUS_API, octopus_account=OCTOPUS_ACCOUNT)
 
-# Initialise Tado Class & all Thermostats
+# Initialise Tado Class & all thermostats
 THERMOSTATS = []
 for room_name, room_data in settings["rooms"].items():
     new_room = Tado(name=room_name)
@@ -100,7 +100,7 @@ def main():
     current_weather_condition = weather.weather_data["current"]["weather"][0]["description"]
     solar_percentage = home_assistant.get_entity_state(sensor="sensor.home_solar_percentage")
 
-    # Gets Electricity and Gas Prices
+    # Gets Electricity and gas prices
     electric_price, time_from, time_to = octopus.get_current_electricity_price(offset=0)
     electric_price = float(electric_price)
     gas_price = float(octopus.get_current_gas_price())
@@ -123,7 +123,7 @@ def main():
         # Refresh data
         room.update_tado_data()
 
-        # Obtain Target Room Temperature
+        # Obtain target room temperature
         target_temperature = getattr(room, time_sector)
 
         # Log initial entries
@@ -133,10 +133,10 @@ def main():
         logger.info(msg=f"Current weather - ID: {current_weather_id} | Condition: {current_weather_condition}")
         logger.info(msg=f"Time Sector: {time_sector.upper()} | Target Temperature: {target_temperature:.2f}")
 
-        # Adjust Target Temperature
+        # Adjust target temperature
         target_temperature -= room.away_adjust(target_temperature=target_temperature)
 
-        # Create / Update Target Temperature Entity
+        # Create / update target temperature entity
         sensor = f"sensor.{room.name}_target_temperature"
         payload = {
             "state": target_temperature,

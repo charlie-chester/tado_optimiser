@@ -4,6 +4,7 @@ from datetime import datetime
 from hass import HomeAssistantAPI
 
 def load_config(url):
+    # Loads user setting file
     system_file = url
     with open(system_file, "r") as file:
         return yaml.safe_load(file)
@@ -37,7 +38,7 @@ class Tado:
         self.electric_radiator_name = None
         self.climate_electric = None
 
-    def update_sensors(self):
+    def update_tado_data(self):
         # Reloads the settings file then refreshes data
         self.settings = load_config(url="/config/settings.yaml")
         self.day = self.settings["rooms"][self.name]["day"]
@@ -65,6 +66,7 @@ class Tado:
         self.climate_electric = home_assistant.get_entity_state(sensor=f"climate.{self.electric_radiator_name}")
 
     def should_use_electric_override(self, electric_price, gas_price):
+        # Calculates if electricity is possible & cost-effective returns True or False
         if not self.electric_override:
             return False
         else:
@@ -77,6 +79,7 @@ class Tado:
             return electric_cost_per_hour < gas_cost_per_hour
 
     def set_hvac_mode(self, target_temperature, temp_hour_0, temp_hour_1, electric_price, gas_price):
+        # If the outside temperature in the next 2 hours will meet the target temperature turn off heating
         if temp_hour_0 >= target_temperature or temp_hour_1 >= target_temperature:
             logger.info(msg=f"Temp Hour 0: {temp_hour_0:.2f} or Temp Hour 1: {temp_hour_1:.2f} is the same or higher than the Target Temperature {target_temperature:.2f}")
 
@@ -88,6 +91,7 @@ class Tado:
 
             logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to OFF")
 
+        # If the room temperature has met the target temperature turn off heating
         elif self.temperature >= target_temperature:
             if self.temperature == target_temperature:
                 logger.info(msg=f"The Actual Temperature {self.temperature:.2f} is the same as the Target Temperature {target_temperature:.2f}")
@@ -102,8 +106,11 @@ class Tado:
 
             logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to OFF")
 
+        # If the above 2 fail then it must mean heating is required
         else:
             logger.info(msg=f"The Actual Temperature {self.temperature:.2f} is lower than the Target Temperature {target_temperature:.2f}")
+
+            # Checks if you should use electricity and then turns on electricity
             if self.should_use_electric_override(electric_price=electric_price, gas_price=gas_price):
                 logger.info(msg=f"{self.name.upper().replace('_', ' ')} Using electric Override")
 
@@ -112,6 +119,8 @@ class Tado:
 
                 home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="heat")
                 home_assistant.set_temperature(entity_id=f"climate.{self.electric_radiator_name}", temperature=target_temperature)
+
+            # If electric override not possible or electricity not cheaper turn on gas
             else:
                 if self.electric_override:
                     logger.info(msg=f"{self.name.upper().replace('_', ' ')} Using Gas")
@@ -127,19 +136,27 @@ class Tado:
             logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to {target_temperature:.2f}")
 
     def away_adjust(self, target_temperature):
+        now = datetime.now()
+
+        # If in HOME mode return no reduction
         if self.tado_mode == "HOME":
             self.away_time = ""
             return 0
+
         else:
+            # If first cycle in AWAY mode reduce by 10%
             if self.away_time == "":
-                self.away_time = datetime.now()
+                self.away_time = now
                 logger.info(msg="First cycle in Away mode")
                 adjusted_temperature = target_temperature * 0.1
                 logger.info(msg=f"{self.name.upper().replace('_', ' ')} in AWAY mode Temperature reduced by 10 % to {target_temperature - adjusted_temperature:.2f}")
                 return adjusted_temperature
+
+            # Sets different reductions depending on time in AWAY mode
             else:
-                time_difference = (datetime.now() - self.away_time).total_seconds() / 3600
-                logger.info(msg=f"Time Now: {datetime.now()} - Away Time: {self.away_time} = {time_difference:.2f} hours")
+                time_difference = (now - self.away_time).total_seconds() / 3600
+                logger.info(
+                    msg=f"Time Now: {now.strftime('%Y-%m-%d %H:%M')} Away Time: {self.away_time.strftime('%Y-%m-%d %H:%M')} = {time_difference:.2f} hours")
                 if time_difference < 12:
                     logger.info(msg="0 to 12 hour")
                     adjusted_temperature = target_temperature * 0.1

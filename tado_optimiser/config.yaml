@@ -30,7 +30,6 @@ options:
   open_weather_api:
   octopus_api:
   octopus_account:
-  control_tado:
 schema:
   log_level: list(debug|info|notice|warning|error)?
   latitude: str
@@ -38,4 +37,3 @@ schema:
   open_weather_api: str
   octopus_api: str
   octopus_account: str
-  control_tado: list(True|False)?

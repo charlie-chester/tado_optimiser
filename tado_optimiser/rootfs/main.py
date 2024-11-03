@@ -47,7 +47,6 @@ LOG_LEVEL = configurations.get("log_level", "INFO").upper()
 LATITUDE = configurations.get("latitude")
 LONGITUDE = configurations.get("longitude")
 OPEN_WEATHER_API = configurations.get("open_weather_api")
-CONTROL_TADO = configurations.get("control_tado")
 OCTOPUS_API = configurations.get("octopus_api")
 OCTOPUS_ACCOUNT = configurations.get("octopus_account")
 
@@ -70,7 +69,6 @@ settings = load_config(url="/config/settings.yaml")
 logger.info(msg=f"Latitude: {LATITUDE}")
 logger.info(msg=f"Longitude: {LONGITUDE}")
 logger.debug(msg=f"Open Weather API Key: {OPEN_WEATHER_API}")
-logger.info(msg=f"Control Tado: {CONTROL_TADO}")
 logger.debug(msg=f"Home Assistant Token: {TOKEN}")
 
 # Initialises Home Assistant, Weather & Octopus Classes
@@ -80,13 +78,9 @@ octopus = Octopus(octopus_api=OCTOPUS_API, octopus_account=OCTOPUS_ACCOUNT)
 
 # Initialise Tado Class & all Thermostats
 THERMOSTATS = []
-if CONTROL_TADO:
-    for room_name, room_data in settings["rooms"].items():
-        new_room = Tado(name=room_name)
-        THERMOSTATS.append(new_room)
-else:
-    logger.info(msg="Tado Control not enabled")
-
+for room_name, room_data in settings["rooms"].items():
+    new_room = Tado(name=room_name)
+    THERMOSTATS.append(new_room)
 
 def main():
     log_line_break()
@@ -94,18 +88,11 @@ def main():
     log_line_break()
 
     # Updates weather data and entities
-    if weather.get_weather_data():
-        weather.current_weather()
-        weather.hourly_entities()
-        weather.daily_entities()
+    weather.update_weather_data()
 
-        # Checks if user wants Tado control. If true continues
-        if CONTROL_TADO:
-            tado_control()
-        else:
-            logger.info(msg="Tado Control not enabled")
+    # Updates Octopus data and entities
+    octopus.update_octopus_data()
 
-def tado_control():
     # Get Sunrise & current weather conditions
     sunrise = datetime.fromtimestamp(weather.weather_data["current"]["sunrise"]).time()
     sunset = datetime.fromtimestamp(weather.weather_data["current"]["sunset"]).time()
@@ -114,8 +101,10 @@ def tado_control():
     solar_percentage = home_assistant.get_entity_state(sensor="sensor.home_solar_percentage")
 
     # Gets Electricity and Gas Prices
-    electric_price = float(octopus.get_current_electricity_price())
+    electric_price, time_from, time_to = octopus.get_current_electricity_price(offset=0)
+    electric_price = float(electric_price)
     gas_price = float(octopus.get_current_gas_price())
+    logger.info(msg=f"Electricity Price: {electric_price} | Gas Price: {gas_price}")
 
     # Calculates time sector
     time_sector = get_time_sector(sunrise=sunrise, sunset=sunset)
@@ -132,17 +121,17 @@ def tado_control():
         logger.info(msg=room.name.upper().replace('_', ' '))
 
         # Refresh data
-        room.update_sensors()
+        room.update_tado_data()
 
         # Obtain Target Room Temperature
         target_temperature = getattr(room, time_sector)
 
         # Log initial entries
-        logger.info(msg=f"Temperature: {room.temperature:.2f} - Climate: {room.climate_gas.upper()} - Mode: {room.tado_mode.upper()} - Electric Override: {str(room.electric_override).upper()}")
-        logger.info(msg=f"Outside Temperatures in the next 3 hours: {temp_hour_0:.2f} - {temp_hour_1:.2f} - {temp_hour_2:.2f}")
-        logger.info(msg=f"Sunrise: {sunrise} - Sunset: {sunset} - Solar Percentage: {solar_percentage} %")
-        logger.info(msg=f"Current weather - ID: {current_weather_id} - Condition: {current_weather_condition}")
-        logger.info(msg=f"Time Sector: {time_sector.upper()} - Target Temperature: {target_temperature:.2f}")
+        logger.info(msg=f"Temperature: {room.temperature:.2f} | Climate: {room.climate_gas.upper()} | Mode: {room.tado_mode.upper()} | Electric Override: {str(room.electric_override).upper()}")
+        logger.info(msg=f"Outside Temperatures in the next 3 hours: {temp_hour_0:.2f} | {temp_hour_1:.2f} | {temp_hour_2:.2f}")
+        logger.info(msg=f"Sunrise: {sunrise} | Sunset: {sunset} | Solar Percentage: {solar_percentage} %")
+        logger.info(msg=f"Current weather - ID: {current_weather_id} | Condition: {current_weather_condition}")
+        logger.info(msg=f"Time Sector: {time_sector.upper()} | Target Temperature: {target_temperature:.2f}")
 
         # Adjust Target Temperature
         target_temperature -= room.away_adjust(target_temperature=target_temperature)

@@ -1,4 +1,6 @@
 import logging
+import time
+
 import requests
 from datetime import datetime
 from hass import HomeAssistantAPI
@@ -26,7 +28,8 @@ class WeatherAPI:
         self.longitude = longitude
         self.weather_data = {}
 
-    def get_weather_data(self):
+    def update_weather_data(self):
+        # Updates weather data if it fails will stay in loop
         logger.info(msg="Getting weather data")
         fullUrl = f"{self.base_url}lat={self.latitude}&lon={self.longitude}&appid={self.api_key}&units=metric"
         logger.debug(msg=f"Get weather data fullUrl: {fullUrl}")
@@ -36,12 +39,16 @@ class WeatherAPI:
         status = response.status_code
         if status == 200:
             logger.info(msg="Weather data successfully retrieved")
-            return True
+            self.current_weather()
+            self.hourly_entities()
+            self.daily_entities()
         else:
-            logger.error(msg=f"Error getting weather data. Status code: {status} Will try again next cycle")
-            return False
+            logger.error(msg=f"Error getting weather data. Status code: {status} Will try again in 1 minute")
+            time.sleep(60)
+            self.update_weather_data()
 
     def current_weather(self):
+        # Creates / updates entities
         current_data = self.weather_data["current"]
         sensor = "sensor.tado_optimiser_current"
         try:
@@ -90,6 +97,7 @@ class WeatherAPI:
         logger.info(msg="Current weather entity created / updated")
 
     def hourly_entities(self):
+        # Creates / updates entities
         hourly_data = self.weather_data["hourly"]
         for hour in range(0, 12):
             sensor = f"sensor.tado_optimiser_hour_{hour}"
@@ -139,6 +147,7 @@ class WeatherAPI:
         logger.info(msg="Hourly entities created / updated")
 
     def daily_entities(self):
+        # Creates / updates entities
         daily_data = self.weather_data["daily"]
         for day in range(0, 8):
             sensor = f"sensor.tado_optimiser_day_{day}"

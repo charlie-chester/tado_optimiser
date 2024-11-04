@@ -26,8 +26,14 @@ class HomeAssistantAPI:
     def get_entity_state(self, sensor):
         fullUrl = f"{self.base_url}/states/{sensor}"
         response = requests.get(fullUrl, headers=self.headers)
-        state = response.json().get("state", "Entity not found")
-        return state
+
+        if response.status_code == 200:
+            logger.debug(msg=f"Entity found: {sensor}")
+            state = response.json()["state"]
+            return state
+        else:
+            logger.error(msg=f"Error getting entity: {sensor}")
+            return "Entity not found"
 
     def set_hvac_mode(self, entity_id, hvac_mode):
         fullUrl = f"{self.base_url}/services/climate/set_hvac_mode"

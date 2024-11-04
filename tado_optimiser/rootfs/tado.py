@@ -62,8 +62,9 @@ class Tado:
         self.temperature = float(home_assistant.get_entity_state(sensor=f"sensor.{self.name}_temperature"))
         self.window = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_window")
 
-        # Gets these value from electric alternative
-        self.climate_electric = home_assistant.get_entity_state(sensor=f"climate.{self.electric_radiator_name}")
+        # Gets these values from electric alternative
+        if self.electric_override:
+            self.climate_electric = home_assistant.get_entity_state(sensor=f"climate.{self.electric_radiator_name}")
 
     def should_use_electric_override(self, electric_price, gas_price):
         # Calculates if electricity is possible & cost-effective returns True or False

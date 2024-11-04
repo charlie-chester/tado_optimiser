@@ -123,7 +123,7 @@ def main():
         # Refresh data
         room.update_tado_data()
 
-        # Obtain target room temperature
+        # Get target room temperature
         target_temperature = getattr(room, time_sector)
 
         # Log initial entries

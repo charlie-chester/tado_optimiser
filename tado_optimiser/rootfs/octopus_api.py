@@ -53,9 +53,9 @@ class Octopus:
         # Creates / updates entities
         self.update_agile_entities()
 
-    def action_get(self, fullUrl):
+    def action_get(self, full_url):
         # Main Action-Get function if it fails will stay in loop
-        response = requests.get(fullUrl, auth=HTTPBasicAuth(username=self.user_name, password=self.pass_word))
+        response = requests.get(full_url, auth=HTTPBasicAuth(username=self.user_name, password=self.pass_word))
 
         status = response.status_code
         if status == 200:
@@ -65,13 +65,13 @@ class Octopus:
             logger.error(msg=f"Error: {response.status_code, response.text}")
             logger.error(msg=f"Error getting Octopus data. Status code: {status} Will try again in 1 minute")
             time.sleep(60)
-            self.action_get(fullUrl=fullUrl)
+            self.action_get(full_url=full_url)
 
     def update_account_details(self):
         # Gets basic account details
-        endPoint = f"/v1/accounts/{self.account}"
-        fullUrl = self.baseUrl + endPoint
-        self.account_data = self.action_get(fullUrl=fullUrl)
+        end_point = f"/v1/accounts/{self.account}"
+        full_url = self.baseUrl + end_point
+        self.account_data = self.action_get(full_url=full_url)
 
     def update_agile_rates(self):
         # Gets Agile rates from account details
@@ -84,9 +84,9 @@ class Octopus:
                     if valid_from < datetime.now().date() < valid_to:
                         tariff_code = agreement["tariff_code"]
                         product_code = tariff_code[5:-2]
-                        endPoint = f"/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates/"
-                        fullUrl = self.baseUrl + endPoint
-                        self.agile_rates = self.action_get(fullUrl=fullUrl)
+                        end_point = f"/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates/"
+                        full_url = self.baseUrl + end_point
+                        self.agile_rates = self.action_get(full_url=full_url)
 
     def update_gas_rates(self):
         # Gets gas rates from account details
@@ -97,9 +97,9 @@ class Octopus:
             if valid_from < datetime.now().date() and valid_to is None:
                 tariff_code = agreement["tariff_code"]
                 product_code = tariff_code[5:-2]
-                endPoint = f"/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates/"
-                fullUrl = self.baseUrl + endPoint
-                self.gas_rates = self.action_get(fullUrl=fullUrl)
+                end_point = f"/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates/"
+                full_url = self.baseUrl + end_point
+                self.gas_rates = self.action_get(full_url=full_url)
 
     def get_current_electricity_price(self, offset):
         # Gets the Agile price based on the offset passed

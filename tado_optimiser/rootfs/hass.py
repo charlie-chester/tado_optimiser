@@ -12,8 +12,8 @@ class HomeAssistantAPI:
 
     def update_entity(self, sensor, payload):
         logger.debug(msg=f"Updating entity: {sensor}")
-        fullUrl = f"{self.base_url}/states/{sensor}"
-        response = requests.post(fullUrl, headers=self.headers, json=payload)
+        full_url = f"{self.base_url}/states/{sensor}"
+        response = requests.post(full_url, headers=self.headers, json=payload)
         logger.debug(msg=f"Status code: {response.status_code}")
 
         if response.status_code == 201:
@@ -24,8 +24,8 @@ class HomeAssistantAPI:
             logger.error(msg=f"Error updating entity: {sensor}")
 
     def get_entity_state(self, sensor):
-        fullUrl = f"{self.base_url}/states/{sensor}"
-        response = requests.get(fullUrl, headers=self.headers)
+        full_url = f"{self.base_url}/states/{sensor}"
+        response = requests.get(full_url, headers=self.headers)
 
         if response.status_code == 200:
             logger.debug(msg=f"Entity found: {sensor}")
@@ -36,9 +36,9 @@ class HomeAssistantAPI:
             return "Entity not found"
 
     def set_hvac_mode(self, entity_id, hvac_mode):
-        fullUrl = f"{self.base_url}/services/climate/set_hvac_mode"
+        full_url = f"{self.base_url}/services/climate/set_hvac_mode"
         payload = {"entity_id": entity_id, "hvac_mode": hvac_mode}
-        response = requests.post(fullUrl, headers=self.headers, json=payload)
+        response = requests.post(full_url, headers=self.headers, json=payload)
         logger.debug(msg=f"Status code: {response.status_code}")
 
         if response.status_code == 200:
@@ -47,9 +47,9 @@ class HomeAssistantAPI:
             logger.debug(msg=f"Failed to set HVAC mode to '{hvac_mode}' for entity: {entity_id}")
 
     def set_temperature(self, entity_id, temperature):
-        fullUrl = f"{self.base_url}/services/climate/set_temperature"
+        full_url = f"{self.base_url}/services/climate/set_temperature"
         payload = {"entity_id": entity_id, "temperature": temperature}
-        response = requests.post(fullUrl, headers=self.headers, json=payload)
+        response = requests.post(full_url, headers=self.headers, json=payload)
         logger.debug(msg=f"Status code: {response.status_code}")
 
         if response.status_code == 200:

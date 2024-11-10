@@ -13,6 +13,8 @@ logger = logging.getLogger("tado_optimiser")
 
 home_assistant = HomeAssistantAPI()
 
+
+# noinspection DuplicatedCode
 class Tado:
     def __init__(self, name):
         self.name = name

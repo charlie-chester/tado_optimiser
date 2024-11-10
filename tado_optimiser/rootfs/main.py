@@ -52,12 +52,19 @@ OCTOPUS_ACCOUNT = configurations.get("octopus_account")
 
 # Set up the logger
 logger = logging.getLogger("tado_optimiser")
-logger.setLevel(getattr(logging, LOG_LEVEL))  # Set the logging level
+logger.setLevel(getattr(logging, LOG_LEVEL))
 handler = RotatingFileHandler(filename="/config/logfile.log", maxBytes=1024*1024, backupCount=5)
-handler.setLevel(getattr(logging, LOG_LEVEL))  # Setting level for the handler
+handler.setLevel(getattr(logging, LOG_LEVEL))
 formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-handler.setFormatter(formatter)  # Attach the formatter to the handler
+handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+# Additional block to use system logs in addition
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(getattr(logging, LOG_LEVEL))
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+# End of additional code
 
 logger.info(msg="Tado Optimizer starting")
 
@@ -104,7 +111,7 @@ def main():
     electric_price, time_from, time_to = octopus.get_current_electricity_price(offset=0)
     electric_price = float(electric_price)
     gas_price = float(octopus.get_current_gas_price())
-    logger.info(msg=f"Electricity Price: {electric_price} | Gas Price: {gas_price}")
+    logger.info(msg=f"Electricity Price: {electric_price} - {time_from[11:16]} ~ {time_to[11:16]} | Gas Price: {gas_price}")
 
     # Calculates time sector
     time_sector = get_time_sector(sunrise=sunrise, sunset=sunset)

@@ -4,6 +4,8 @@ import os
 
 logger = logging.getLogger("tado_optimiser")
 
+
+# noinspection DuplicatedCode
 class HomeAssistantAPI:
     def __init__(self,):
         self.token = os.getenv("SUPERVISOR_TOKEN")

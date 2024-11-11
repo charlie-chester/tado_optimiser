@@ -1,6 +1,6 @@
 import logging
-import requests
 import os
+import requests
 
 logger = logging.getLogger("tado_optimiser")
 

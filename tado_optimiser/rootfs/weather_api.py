@@ -1,8 +1,8 @@
 import logging
 import time
+from datetime import datetime
 
 import requests
-from datetime import datetime
 from home_assistant_api import HomeAssistantAPI
 
 

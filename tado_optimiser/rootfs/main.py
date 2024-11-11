@@ -6,7 +6,7 @@ from datetime import datetime
 import yaml
 import schedule
 import shutil
-from hass import HomeAssistantAPI
+from home_assistant_api import HomeAssistantAPI
 from weather_api import WeatherAPI
 from octopus_api import Octopus
 from tado import Tado

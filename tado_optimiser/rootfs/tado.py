@@ -1,7 +1,7 @@
 import logging
 import yaml
 from datetime import datetime
-from hass import HomeAssistantAPI
+from home_assistant_api import HomeAssistantAPI
 
 def load_config(url):
     # Loads user setting file

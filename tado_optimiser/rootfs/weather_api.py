@@ -3,7 +3,7 @@ import time
 
 import requests
 from datetime import datetime
-from hass import HomeAssistantAPI
+from home_assistant_api import HomeAssistantAPI
 
 
 logger = logging.getLogger("tado_optimiser")

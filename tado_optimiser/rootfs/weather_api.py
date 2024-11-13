@@ -5,7 +5,6 @@ from datetime import datetime
 import requests
 from home_assistant_api import HomeAssistantAPI
 
-
 logger = logging.getLogger("tado_optimiser")
 
 home_assistant = HomeAssistantAPI()

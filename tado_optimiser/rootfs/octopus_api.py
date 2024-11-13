@@ -1,9 +1,10 @@
 import logging
 import time
-import requests
 from datetime import datetime, timedelta
-from requests.auth import HTTPBasicAuth
+
+import requests
 from home_assistant_api import HomeAssistantAPI
+from requests.auth import HTTPBasicAuth
 
 logger = logging.getLogger("tado_optimiser")
 

@@ -4,7 +4,6 @@ from datetime import datetime
 from home_assistant_api import HomeAssistantAPI
 
 def load_config(url):
-    # Loads user setting file
     system_file = url
     with open(system_file, "r") as file:
         return yaml.safe_load(file)

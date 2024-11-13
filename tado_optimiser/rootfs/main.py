@@ -1,17 +1,16 @@
 import logging
-from logging.handlers import RotatingFileHandler
 import os
 import shutil
 import time
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
 
 import schedule
 import yaml
-
 from home_assistant_api import HomeAssistantAPI
-from weather_api import WeatherAPI
 from octopus_api import Octopus
 from tado import Tado
+from weather_api import WeatherAPI
 
 
 def load_config(url):

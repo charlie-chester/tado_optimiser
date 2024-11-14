@@ -75,7 +75,7 @@ class WeatherAPI:
                     "Snow": current_data.get("snow", {}).get("1h", 0),
                     "Weather - ID": current_data["weather"][0]["id"],
                     "Weather - Main": current_data["weather"][0]["main"],
-                    "Weather - Description": current_data["weather"][0]["description"]
+                    "Weather - Description": current_data["weather"][0]["description"].capitalize()
                 }
             }
 
@@ -124,7 +124,7 @@ class WeatherAPI:
                         "Snow": hourly_data[hour].get("snow", {}).get("1h", 0),
                         "Hourly Weather - ID": hourly_data[hour]["weather"][0]["id"],
                         "Hourly Weather - Main": hourly_data[hour]["weather"][0]["main"],
-                        "Hourly Weather - Description": hourly_data[hour]["weather"][0]["description"]
+                        "Hourly Weather - Description": hourly_data[hour]["weather"][0]["description"].capitalize(),
                     }
                 }
 
@@ -183,7 +183,7 @@ class WeatherAPI:
                         "Wind gust": daily_data[day]["wind_gust"],
                         "Weather - ID": daily_data[day]["weather"][0]["id"],
                         "Weather - Main": daily_data[day]["weather"][0]["main"],
-                        "Weather - Description": daily_data[day]["weather"][0]["description"],
+                        "Weather - Description": daily_data[day]["weather"][0]["description"].capitalize(),
                         "Clouds": daily_data[day]["clouds"],
                         "UVI": daily_data[day]["uvi"],
                         "POP": daily_data[day]["pop"],
@@ -191,7 +191,7 @@ class WeatherAPI:
                         "Snow": daily_data[day].get("snow", 0),
                         "Daily Weather - ID": daily_data[day]["weather"][0]["id"],
                         "Daily Weather - Main": daily_data[day]["weather"][0]["main"],
-                        "Daily Weather - Description": daily_data[day]["weather"][0]["description"],
+                        "Daily Weather - Description": daily_data[day]["weather"][0]["description"].capitalize(),
                     }
                 }
             except KeyError as error:

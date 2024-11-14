@@ -105,7 +105,7 @@ def main():
     sunrise = datetime.fromtimestamp(weather.weather_data["current"]["sunrise"]).time()
     sunset = datetime.fromtimestamp(weather.weather_data["current"]["sunset"]).time()
     current_weather_id = weather.weather_data["current"]["weather"][0]["id"]
-    current_weather_condition = weather.weather_data["current"]["weather"][0]["description"]
+    current_weather_condition = weather.weather_data["current"]["weather"][0]["description"].capitalize()
     solar_percentage = home_assistant.get_entity_state(sensor="sensor.home_solar_percentage")
 
     # Gets Electricity and gas prices

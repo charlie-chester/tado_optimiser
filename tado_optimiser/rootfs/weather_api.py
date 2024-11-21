@@ -42,8 +42,8 @@ class WeatherAPI:
             self.hourly_entities()
             self.daily_entities()
         else:
-            logger.error(msg=f"Error getting weather data. Status code: {status} Will try again in 1 minute")
-            time.sleep(60)
+            logger.error(msg=f"Error getting weather data. Status code: {status} Will try again in 30 minute")
+            time.sleep(60 * 30)
             self.update_weather_data()
 
     def current_weather(self):

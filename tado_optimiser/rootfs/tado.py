@@ -67,6 +67,15 @@ class Tado:
         if self.electric_override:
             self.climate_electric = home_assistant.get_entity_state(sensor=f"climate.{self.electric_radiator_name}")
 
+    def calculate_break_even_price(self, gas_price):
+        # Calculates the break-even price for electricity to be cheaper than gas
+        kwh_gas = self.gas_radiator_power / 1000
+        kwh_electric = self.electric_radiator_power / 1000
+        gas_cost_per_hour = kwh_gas * gas_price
+        break_even_electric_price = gas_cost_per_hour / kwh_electric
+        logger.info(msg=f"Break-even Electricity Price: {break_even_electric_price:.2f} pence")
+        return break_even_electric_price
+
     def should_use_electric_override(self, electric_price, gas_price):
         # Calculates if electricity is possible & cost-effective returns True or False
         if not self.electric_override:
@@ -78,6 +87,7 @@ class Tado:
             electric_cost_per_hour = kwh_electric * electric_price
             logger.info(msg=f"Electric Cost Per Hour {electric_cost_per_hour:.2f} pence")
             logger.info(msg=f"Gas Cost Per Hour {gas_cost_per_hour:.2f} pence")
+            self.calculate_break_even_price(gas_price)
             return electric_cost_per_hour < gas_cost_per_hour
 
     def set_hvac_mode(self, target_temperature, temp_hour_0, temp_hour_1, electric_price, gas_price):

@@ -86,7 +86,7 @@ octopus = Octopus(octopus_api=OCTOPUS_API, octopus_account=OCTOPUS_ACCOUNT)
 
 # Initialise Tado Class & all thermostats
 THERMOSTATS = []
-for room_name, room_data in settings["rooms"].items():
+for room_name in settings["rooms"]:
     new_room = Tado(name=room_name)
     THERMOSTATS.append(new_room)
 

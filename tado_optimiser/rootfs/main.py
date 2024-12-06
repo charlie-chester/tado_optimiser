@@ -34,6 +34,14 @@ def get_time_sector(sunrise, sunset):
         time_sector = "night"
     return time_sector
 
+def calculate_radiator_flow_temp(outside_temp):
+    if outside_temp <= 0:
+        return 75
+    elif outside_temp >= 10:
+        return 50
+    else:
+        return 75 - (outside_temp * 2.5)
+
 def log_line_break():
     logger.info(msg="***************************************************************************************")
 
@@ -56,7 +64,7 @@ logger = logging.getLogger("tado_optimiser")
 logger.setLevel(getattr(logging, LOG_LEVEL))
 handler = RotatingFileHandler(filename="/config/logfile.log", maxBytes=1024*1024, backupCount=5)
 handler.setLevel(getattr(logging, LOG_LEVEL))
-formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s %(filename)s line %(lineno)d: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s %(filename)s line %(lineno)03d: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
@@ -79,7 +87,7 @@ logger.info(msg=f"Longitude: {LONGITUDE}")
 logger.debug(msg=f"Open Weather API Key: {OPEN_WEATHER_API}")
 logger.debug(msg=f"Home Assistant Token: {TOKEN}")
 
-# Initialises Home Assistant, Weather & Octopus Classes
+# Initialise Home Assistant, Weather & Octopus Classes
 home_assistant = HomeAssistantAPI()
 weather = WeatherAPI(open_weather_api_key=OPEN_WEATHER_API, latitude=LATITUDE, longitude=LONGITUDE)
 octopus = Octopus(octopus_api=OCTOPUS_API, octopus_account=OCTOPUS_ACCOUNT)
@@ -114,6 +122,12 @@ def main():
     gas_price = float(octopus.get_current_gas_price())
     logger.info(msg=f"Electricity Price: {electric_price} - {time_from[11:16]} ~ {time_to[11:16]} | Gas Price: {gas_price}")
 
+    # Check if system is exporting electricity
+    if home_assistant.get_entity_state(sensor="predbat.status") == "Exporting":
+        is_exporting = True
+    else:
+        is_exporting = False
+
     # Calculates time sector
     time_sector = get_time_sector(sunrise=sunrise, sunset=sunset)
 
@@ -121,6 +135,22 @@ def main():
     temp_hour_0 = weather.weather_data["hourly"][0]["temp"]
     temp_hour_1 = weather.weather_data["hourly"][1]["temp"]
     temp_hour_2 = weather.weather_data["hourly"][2]["temp"]
+
+    # Calculate Flow Temperature
+    flow_temperature = calculate_radiator_flow_temp(outside_temp=weather.weather_data["current"]["temp"])
+    logger.info(msg=f"Suggested Flow Temperature: {flow_temperature:.2f}")
+
+    # Create / update flow temperature entity
+    sensor = "sensor.radiator_flow_temperature"
+    payload = {
+        "state": round(flow_temperature, 2),
+        "attributes": {
+            "unit_of_measurement": "°C",
+            "friendly_name": "Radiator Flow Temperature",
+            "icon": "mdi:thermometer",
+        }
+    }
+    home_assistant.update_entity(sensor=sensor, payload=payload)
 
     log_line_break()
 
@@ -163,6 +193,7 @@ def main():
             temp_hour_1=temp_hour_1,
             electric_price=electric_price,
             gas_price=gas_price,
+            is_exporting=is_exporting,
         )
 
         log_line_break()

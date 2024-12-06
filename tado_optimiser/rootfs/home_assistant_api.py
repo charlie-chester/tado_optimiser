@@ -14,10 +14,8 @@ class HomeAssistantAPI:
         self.headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
 
     def update_entity(self, sensor, payload):
-        logger.debug(msg=f"Updating entity: {sensor}")
         full_url = f"{self.base_url}/states/{sensor}"
         response = requests.post(full_url, headers=self.headers, json=payload)
-        logger.debug(msg=f"Status code: {response.status_code}")
 
         if response.status_code == 201:
             logger.debug(msg=f"New entity successfully created: {sensor}")
@@ -53,7 +51,6 @@ class HomeAssistantAPI:
         full_url = f"{self.base_url}/services/climate/set_temperature"
         payload = {"entity_id": entity_id, "temperature": temperature}
         response = requests.post(full_url, headers=self.headers, json=payload)
-        logger.debug(msg=f"Status code: {response.status_code}")
 
         if response.status_code == 200:
             logger.debug(msg=f"Temperature set to '{temperature}' for entity: {entity_id}")

@@ -37,7 +37,7 @@ class Octopus:
 
         # Checks time and updated Agile rates
         if self.agile_rates_last_updated == "" or (now - datetime.strptime(self.agile_rates_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 3600:
-            self.update_agile_rates()
+            self.get_agile_rates()
             self.agile_rates_last_updated = now.strftime("%Y-%m-%d %H:%M:%S")
             logger.info(msg=f"Agile rates updated: {self.agile_rates_last_updated}")
         else:
@@ -45,7 +45,7 @@ class Octopus:
 
         # Checks time and updated gas rates
         if self.gas_rates_last_updated == "" or (now - datetime.strptime(self.gas_rates_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 3600:
-            self.update_gas_rates()
+            self.get_gas_rates()
             self.gas_rates_last_updated = now.strftime("%Y-%m-%d %H:%M:%S")
             logger.info(msg=f"Gas rates updated: {self.agile_rates_last_updated}")
         else:
@@ -74,7 +74,7 @@ class Octopus:
         full_url = self.baseUrl + end_point
         self.account_data = self.action_get(full_url=full_url)
 
-    def update_agile_rates(self):
+    def get_agile_rates(self):
         # Gets Agile rates from account details
         for meter in self.account_data["properties"][0]["electricity_meter_points"]:
             if not meter["is_export"]:
@@ -89,7 +89,7 @@ class Octopus:
                         full_url = self.baseUrl + end_point
                         self.agile_rates = self.action_get(full_url=full_url)
 
-    def update_gas_rates(self):
+    def get_gas_rates(self):
         # Gets gas rates from account details
         for agreement in self.account_data["properties"][0]["gas_meter_points"][0]["agreements"]:
             valid_from = datetime.strptime(agreement["valid_from"][:10], "%Y-%m-%d").date()

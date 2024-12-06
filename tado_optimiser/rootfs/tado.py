@@ -76,9 +76,12 @@ class Tado:
         logger.info(msg=f"Break-even Electricity Price: {break_even_electric_price:.2f} pence")
         return break_even_electric_price
 
-    def should_use_electric_override(self, electric_price, gas_price):
+    def should_use_electric_override(self, electric_price, gas_price, is_exporting):
         # Calculates if electricity is possible & cost-effective returns True or False
         if not self.electric_override:
+            return False
+        elif is_exporting:
+            logger.info(msg="Exporting Electricity so skipping Electric Override")
             return False
         else:
             kwh_gas = self.gas_radiator_power / 1000
@@ -90,7 +93,7 @@ class Tado:
             self.calculate_break_even_price(gas_price)
             return electric_cost_per_hour < gas_cost_per_hour
 
-    def set_hvac_mode(self, target_temperature, temp_hour_0, temp_hour_1, electric_price, gas_price):
+    def set_hvac_mode(self, target_temperature, temp_hour_0, temp_hour_1, electric_price, gas_price, is_exporting):
         # If the outside temperature in the next 2 hours will meet the target temperature turn off heating
         if temp_hour_0 >= target_temperature or temp_hour_1 >= target_temperature:
             logger.info(msg=f"Temp Hour 0: {temp_hour_0:.2f} or Temp Hour 1: {temp_hour_1:.2f} is the same or higher than the Target Temperature {target_temperature:.2f}")
@@ -123,29 +126,22 @@ class Tado:
             logger.info(msg=f"The Actual Temperature {self.temperature:.2f} is lower than the Target Temperature {target_temperature:.2f}")
 
             # Checks if you should use electricity and then turns on electricity
-            if self.should_use_electric_override(electric_price=electric_price, gas_price=gas_price):
-                logger.info(msg=f"{self.name.upper().replace('_', ' ')} Using electric Override")
-
+            if self.should_use_electric_override(electric_price=electric_price, gas_price=gas_price, is_exporting=is_exporting):
                 if self.climate_gas != "off":
                     home_assistant.set_hvac_mode(entity_id=f"climate.{self.name}", hvac_mode="off")
 
                 home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="heat")
                 home_assistant.set_temperature(entity_id=f"climate.{self.electric_radiator_name}", temperature=target_temperature)
+                logger.info(msg=f"{self.name.upper().replace('_', ' ')} using Electricity set to {target_temperature:.2f}")
 
             # If electric override not possible or electricity not cheaper turn on gas
             else:
-                if self.electric_override:
-                    logger.info(msg=f"{self.name.upper().replace('_', ' ')} Using Gas")
-                else:
-                    logger.info(msg=f"{self.name.upper().replace('_', ' ')} Electric Override not enabled")
-
                 if self.electric_override:
                     if self.climate_electric != "off":
                         home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="off")
 
                 home_assistant.set_temperature(entity_id=f"climate.{self.name}", temperature=target_temperature)
-
-            logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to {target_temperature:.2f}")
+                logger.info(msg=f"{self.name.upper().replace('_', ' ')} using Gas set to {target_temperature:.2f}")
 
     def away_adjust(self, target_temperature):
         now = datetime.now()

@@ -7,17 +7,17 @@ configuration:
   system_packages:
     name: System packages
     description: >-
-      Allows you to specificy a list of additional Alpine Linux packages to be
+      Allows you to specify a list of additional Alpine Linux packages to be
       installed before starts.
   python_packages:
     name: Python packages
     description: >-
-      Allows you to specificy a list of additional Python packages to be
+      Allows you to specify a list of additional Python packages to be
       installed
   init_commands:
     name: Init commands
     description: >-
-      Allows you to specificy a list of custom shell commands that are ran
+      Allows you to specify a list of custom shell commands that are ran
       before start
 network:
   5050/tcp: The AppDaemon webserver

@@ -122,11 +122,20 @@ def main():
     gas_price = float(octopus.get_current_gas_price())
     logger.info(msg=f"Electricity Price: {electric_price} - {time_from[11:16]} ~ {time_to[11:16]} | Gas Price: {gas_price}")
 
-    # Check if system is exporting electricity
-    if home_assistant.get_entity_state(sensor="predbat.status") == "Exporting":
-        is_exporting = True
+    # Check if system is using the Grid & Predbat Status
+    grid_power = home_assistant.get_entity_state(sensor="sensor.givtcp_fd2327g123_grid_power")
+    predbat_status = home_assistant.get_entity_state(sensor="predbat.status")
+    logger.info(msg=f"Grid Power: {grid_power} watts | Predbat Status: {predbat_status}")
+
+    if grid_power == "Entity not found":
+        logger.error(msg="Grid Power entity not found")
+        using_grid = False
     else:
-        is_exporting = False
+        grid_power = float(grid_power)
+        if grid_power <= -25:
+            using_grid = True
+        else:
+            using_grid = False
 
     # Calculates time sector
     time_sector = get_time_sector(sunrise=sunrise, sunset=sunset)
@@ -193,7 +202,7 @@ def main():
             temp_hour_1=temp_hour_1,
             electric_price=electric_price,
             gas_price=gas_price,
-            is_exporting=is_exporting,
+            using_grid=using_grid,
         )
 
         log_line_break()
@@ -204,7 +213,7 @@ def main():
 main()
 
 #  Schedule to run every 10 minutes
-for minute in ["00:00", "10:00", "20:00", "30:00", "40:00", "50:00"]:
+for minute in ["00:00", "05:00", "10:00", "15:00", "20:00", "25:00", "30:00", "35:00", "40:00", "45:00", "50:00", "55:00"]:
     schedule.every().hour.at(minute).do(main)
 
 # Keeps schedule running

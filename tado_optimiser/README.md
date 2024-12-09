@@ -17,7 +17,7 @@ To use Tado Optimiser, you need to have the following: -
 
 ### My basic dashboard.
 
-<img src="images/dash_1.png" alt="Alt text" width="800">
+<img src="https://github.com/charlie-chester/tado_optimiser/blob/main/tado_optimiser/images/dash_1.png?raw=true" alt="Basic Dashboard" width="800">
 
 ### The way my system works: -
 - [ ] The logic runs every 10 minutes.
@@ -27,7 +27,7 @@ To use Tado Optimiser, you need to have the following: -
 
 ### The Settings file
 
-<img src="images/settings_1.png" alt="Alt text" width="400">
+<img src="https://github.com/charlie-chester/tado_optimiser/blob/main/tado_optimiser/images/settings_1.png?raw=true" alt="Settings File" width="400">
 
 - [ ] Day is from Sunrise to Sunset.
 - [ ] Evening is Sunset to Midnight.

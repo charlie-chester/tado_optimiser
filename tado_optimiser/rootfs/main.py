@@ -125,17 +125,26 @@ def main():
     # Check if system is using the Grid & Predbat Status
     grid_power = home_assistant.get_entity_state(sensor="sensor.givtcp_fd2327g123_grid_power")
     predbat_status = home_assistant.get_entity_state(sensor="predbat.status")
-    logger.info(msg=f"Grid Power: {grid_power} watts | Predbat Status: {predbat_status}")
 
     if grid_power == "Entity not found":
         logger.error(msg="Grid Power entity not found")
         using_grid = False
+        grid_status = "No Grid Data"
     else:
         grid_power = float(grid_power)
-        if grid_power <= -25:
+
+        if grid_power <= -35:
+            grid_status = "Importing"
             using_grid = True
-        else:
+        elif grid_power >= 35:
+            grid_status = "Exporting"
             using_grid = False
+        else:
+            grid_status = "No Grid Activity"
+            using_grid = False
+            grid_power = 0
+
+    logger.info(msg=f"Grid Power: {grid_power} watts | Grid Status: {grid_status} | Predbat Status: {predbat_status}")
 
     # Calculates time sector
     time_sector = get_time_sector(sunrise=sunrise, sunset=sunset)

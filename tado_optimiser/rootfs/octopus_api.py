@@ -35,7 +35,7 @@ class Octopus:
         else:
             logger.info(msg=f"Account details not updated. Last updated: {self.account_data_last_updated}")
 
-        # Checks time and updated Agile rates
+        # Checks time and updates Agile rates
         if self.agile_rates_last_updated == "" or (now - datetime.strptime(self.agile_rates_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 3600:
             self.get_agile_rates()
             self.agile_rates_last_updated = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -43,7 +43,7 @@ class Octopus:
         else:
             logger.info(msg=f"Agile rates not updated. Last updated: {self.agile_rates_last_updated}")
 
-        # Checks time and updated gas rates
+        # Checks time and updates gas rates
         if self.gas_rates_last_updated == "" or (now - datetime.strptime(self.gas_rates_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 3600:
             self.get_gas_rates()
             self.gas_rates_last_updated = now.strftime("%Y-%m-%d %H:%M:%S")

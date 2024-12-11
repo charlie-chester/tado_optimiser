@@ -117,12 +117,20 @@ class Octopus:
         # Gets the current gas price
         now = datetime.now()
         for rate in self.gas_rates["results"]:
+            payment_method = rate["payment_method"]
             valid_from = datetime.strptime(rate["valid_from"], "%Y-%m-%dT%H:%M:%SZ")
             valid_to = rate["valid_to"]
-            payment_method = rate["payment_method"]
 
-            if valid_from <= now and valid_to is None and payment_method == "DIRECT_DEBIT":
-                logger.debug(msg=f"Price: {rate['value_inc_vat']} - From: {rate['valid_from'][:-1].replace('T', ' ')} To: {rate['valid_to']}")
+            # if the date is None, set it to a date in the future + 500 days
+            if valid_to is None:
+                valid_to = now + timedelta(days=500)
+                valid_to = valid_to.strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                valid_to = datetime.strptime(rate["valid_to"], "%Y-%m-%dT%H:%M:%SZ")
+
+            logger.debug(msg=f"Valid from: {valid_from} - Valid to: {valid_to} - Payment method: {payment_method}")
+            
+            if valid_from <= now < valid_to and payment_method == "DIRECT_DEBIT":
                 return rate["value_inc_vat"]
 
     def update_agile_entities(self):

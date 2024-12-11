@@ -2,7 +2,7 @@ import logging
 import os
 import shutil
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from logging.handlers import RotatingFileHandler
 
 import schedule
@@ -26,6 +26,9 @@ def copy_settings_file():
         logger.info(msg="Settings file already exists in /config")
 
 def get_time_sector(sunrise, sunset):
+    # Change sunset to 30 minutes before sunset
+    sunset = (datetime.combine(datetime.today(), sunset) - timedelta(minutes=30)).time()
+
     if sunrise <= datetime.now().time() < sunset:
         time_sector = "day"
     elif sunset <= datetime.now().time() < datetime.strptime('23:59', '%H:%M').time():

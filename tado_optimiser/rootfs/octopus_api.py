@@ -1,6 +1,8 @@
 import logging
 import time
 from datetime import datetime, timedelta
+import json
+import os
 
 import requests
 from home_assistant_api import HomeAssistantAPI
@@ -27,29 +29,79 @@ class Octopus:
         # Updates all Octopus data if required
         now = datetime.now()
 
-        # Checks time and updates main account details
-        if self.account_data_last_updated == "" or (now - datetime.strptime(self.account_data_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 3600 * 24:
-            self.update_account_details()
-            self.account_data_last_updated = now.strftime("%Y-%m-%d %H:%M:%S")
-            logger.info(msg=f"Account details updated: {self.account_data_last_updated}")
-        else:
-            logger.info(msg=f"Account details not updated. Last updated: {self.account_data_last_updated}")
+        # ****************************************************************************************************************
+        # Deal with Account data
 
-        # Checks time and updates Agile rates
-        if self.agile_rates_last_updated == "" or (now - datetime.strptime(self.agile_rates_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 3600:
+        # Checks to see if account data files are present and if not runs plan to make new ones
+        if not os.path.exists("/config/account_data.json") or not os.path.exists("/config/account_data_last_updated.txt"):
+            logger.info(msg="Octopus account data backup files not present running plan to make new ones")
+            self.update_account_data()
+
+        # If data files are present but no data in system load them
+        elif self.account_data_last_updated == "" or self.account_data == {}:
+            with open("/config/account_data.json", "r") as f:
+                self.account_data = json.load(f)
+            with open("/config/account_data_last_updated.txt", "r") as f:
+                self.account_data_last_updated = f.read()
+
+            logger.info(msg="Octopus account data loaded from backup files")
+
+        # Checks last updated time and updates account data if needed
+        if (now - datetime.strptime(self.account_data_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > (3600 * 24) - 60:
+            self.update_account_data()
+        else:
+            if (now - datetime.strptime(self.account_data_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 30:
+                logger.info(msg=f"Octopus account data not updated. Last updated: {self.account_data_last_updated}")
+
+        # ****************************************************************************************************************
+        # Deal with Agile rates
+
+        # Checks time and updates Agile rates are present and if not runs plan to make new ones
+        if not os.path.exists("/config/agile_rates.json") or not os.path.exists("/config/agile_rates_last_updated.txt"):
+            logger.info(msg="Agile rates backup files not present running plan to make new ones")
             self.get_agile_rates()
-            self.agile_rates_last_updated = now.strftime("%Y-%m-%d %H:%M:%S")
-            logger.info(msg=f"Agile rates updated: {self.agile_rates_last_updated}")
-        else:
-            logger.info(msg=f"Agile rates not updated. Last updated: {self.agile_rates_last_updated}")
 
-        # Checks time and updates gas rates
-        if self.gas_rates_last_updated == "" or (now - datetime.strptime(self.gas_rates_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 3600:
-            self.get_gas_rates()
-            self.gas_rates_last_updated = now.strftime("%Y-%m-%d %H:%M:%S")
-            logger.info(msg=f"Gas rates updated: {self.agile_rates_last_updated}")
+        # If data files are present but no data in system load them
+        elif self.agile_rates_last_updated == "" or self.agile_rates == {}: 
+            with open("/config/agile_rates.json", "r") as f:
+                self.agile_rates = json.load(f)
+            with open("/config/agile_rates_last_updated.txt", "r") as f:
+                self.agile_rates_last_updated = f.read()
+
+            logger.info(msg="Agile rates loaded from backup files")
+
+        # Checks last updated time and updates Agile rates if needed
+        if (now - datetime.strptime(self.agile_rates_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 3600 - 60:
+            self.get_agile_rates() 
         else:
-            logger.info(msg=f"Gas rates not updated. Last updated: {self.agile_rates_last_updated}")
+            if (now - datetime.strptime(self.agile_rates_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 30:
+                logger.info(msg=f"Agile rates not updated. Last updated: {self.agile_rates_last_updated}")
+
+        # ****************************************************************************************************************
+        # Deal with Gas rates
+
+        # Checks time and updates gas rates  are present and if not runs plan to make new ones
+        if not os.path.exists("/config/gas_rates.json") or not os.path.exists("/config/gas_rates_last_updated.txt"):
+            logger.info(msg="Gas rates backup files not present running plan to make new ones")
+            self.get_gas_rates()
+
+        # If data files are present but no data in system load them
+        elif self.gas_rates_last_updated == "" or self.gas_rates == {}: 
+            with open("/config/gas_rates.json", "r") as f:
+                self.gas_rates = json.load(f)
+            with open("/config/gas_rates_last_updated.txt", "r") as f:
+                self.gas_rates_last_updated = f.read()
+
+            logger.info(msg="Gas rates loaded from backup files")
+
+        # Checks last updated time and updates gas rates if needed
+        if (now - datetime.strptime(self.gas_rates_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 3600 - 60:
+            self.get_gas_rates()
+        else:
+            if (now - datetime.strptime(self.gas_rates_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 30:
+                logger.info(msg=f"Gas rates not updated. Last updated: {self.agile_rates_last_updated}")
+
+        # ****************************************************************************************************************
 
         # Creates / updates entities
         self.update_agile_entities()
@@ -68,11 +120,21 @@ class Octopus:
             time.sleep(60)
             self.action_get(full_url=full_url)
 
-    def update_account_details(self):
+    def update_account_data(self):
         # Gets basic account details
         end_point = f"/v1/accounts/{self.account}"
         full_url = self.baseUrl + end_point
         self.account_data = self.action_get(full_url=full_url)
+        self.account_data_last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Write formatted json to file & records timestamp
+        with open("/config/account_data.json", "w") as f:
+            json.dump(self.account_data, f, indent=4)
+
+        with open("/config/account_data_last_updated.txt", "w") as f:
+                f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+        logger.info(msg=f"Account data updated: {self.account_data_last_updated}")
 
     def get_agile_rates(self):
         # Gets Agile rates from account details
@@ -88,6 +150,16 @@ class Octopus:
                         end_point = f"/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates/"
                         full_url = self.baseUrl + end_point
                         self.agile_rates = self.action_get(full_url=full_url)
+                        self.agile_rates_last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                        # Write formatted json to file & records timestamp
+                        with open("/config/agile_rates.json", "w") as f:
+                            json.dump(self.agile_rates, f, indent=4)
+
+                        with open("/config/agile_rates_last_updated.txt", "w") as f:
+                            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+                        logger.info(msg=f"Agile rates updated: {self.agile_rates_last_updated}")
 
     def get_gas_rates(self):
         # Gets gas rates from account details
@@ -101,6 +173,16 @@ class Octopus:
                 end_point = f"/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates/"
                 full_url = self.baseUrl + end_point
                 self.gas_rates = self.action_get(full_url=full_url)
+                self.gas_rates_last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                # Write formatted json to file & records timestamp
+                with open("/config/gas_rates.json", "w") as f:
+                    json.dump(self.gas_rates, f, indent=4)
+
+                with open("/config/gas_rates_last_updated.txt", "w") as f:
+                    f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+                logger.info(msg=f"Gas rates updated: {self.agile_rates_last_updated}")
 
     def get_current_electricity_price(self, offset):
         # Gets the Agile price based on the offset passed
@@ -135,7 +217,7 @@ class Octopus:
 
     def update_agile_entities(self):
         # Creates / updates entities
-        for offset in range(0, 151, 30):
+        for offset in range(0, 271, 30):
             price, time_from, time_to = self.get_current_electricity_price(offset=offset)
             sensor = f"sensor.agile_electricity_price_{offset}"
             payload = {

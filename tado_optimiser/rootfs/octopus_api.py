@@ -1,12 +1,13 @@
+import json
 import logging
+import os
 import time
 from datetime import datetime, timedelta
-import json
-import os
 
 import requests
-from home_assistant_api import HomeAssistantAPI
 from requests.auth import HTTPBasicAuth
+
+from home_assistant_api import HomeAssistantAPI
 
 logger = logging.getLogger("tado_optimiser")
 
@@ -130,9 +131,8 @@ class Octopus:
         # Write formatted json to file & records timestamp
         with open("/config/account_data.json", "w") as f:
             json.dump(self.account_data, f, indent=4)
-
         with open("/config/account_data_last_updated.txt", "w") as f:
-                f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
         logger.info(msg=f"Account data updated: {self.account_data_last_updated}")
 
@@ -178,7 +178,6 @@ class Octopus:
                 # Write formatted json to file & records timestamp
                 with open("/config/gas_rates.json", "w") as f:
                     json.dump(self.gas_rates, f, indent=4)
-
                 with open("/config/gas_rates_last_updated.txt", "w") as f:
                     f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 

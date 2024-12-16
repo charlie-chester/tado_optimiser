@@ -7,6 +7,7 @@ from logging.handlers import RotatingFileHandler
 
 import schedule
 import yaml
+
 from home_assistant_api import HomeAssistantAPI
 from octopus_api import Octopus
 from tado import Tado
@@ -37,13 +38,27 @@ def get_time_sector(sunrise, sunset):
         time_sector = "night"
     return time_sector
 
-def calculate_radiator_flow_temp(outside_temp):
+def get_radiator_flow_temp(outside_temp):
     if outside_temp <= 0:
-        return 75
+        flow_temperature = 75
     elif outside_temp >= 10:
-        return 50
+        flow_temperature = 50
     else:
-        return 75 - (outside_temp * 2.5)
+        flow_temperature = 75 - (outside_temp * 2.5)
+
+    logger.info(msg=f"Suggested Flow Temperature: {flow_temperature:.2f}")
+    
+    # Create / update flow temperature entity
+    sensor = "sensor.radiator_flow_temperature"
+    payload = {
+        "state": round(flow_temperature, 2),
+        "attributes": {
+            "unit_of_measurement": "°C",
+            "friendly_name": "Radiator Flow Temperature",
+            "icon": "mdi:thermometer",
+        }
+    }
+    home_assistant.update_entity(sensor=sensor, payload=payload)
 
 def log_line_break():
     logger.info(msg="***************************************************************************************")
@@ -152,27 +167,14 @@ def main():
     # Calculates time sector
     time_sector = get_time_sector(sunrise=sunrise, sunset=sunset)
 
+    # Calculate radiator flow temperature
+    get_radiator_flow_temp(outside_temp=weather.weather_data["current"]["temp"])
+
     # Finds temperatures next 3 hours
     temp_hour_0 = weather.weather_data["hourly"][0]["temp"]
     temp_hour_1 = weather.weather_data["hourly"][1]["temp"]
     temp_hour_2 = weather.weather_data["hourly"][2]["temp"]
-
-    # Calculate Flow Temperature
-    flow_temperature = calculate_radiator_flow_temp(outside_temp=weather.weather_data["current"]["temp"])
-    logger.info(msg=f"Suggested Flow Temperature: {flow_temperature:.2f}")
-
-    # Create / update flow temperature entity
-    sensor = "sensor.radiator_flow_temperature"
-    payload = {
-        "state": round(flow_temperature, 2),
-        "attributes": {
-            "unit_of_measurement": "°C",
-            "friendly_name": "Radiator Flow Temperature",
-            "icon": "mdi:thermometer",
-        }
-    }
-    home_assistant.update_entity(sensor=sensor, payload=payload)
-
+    
     log_line_break()
 
     # Iterate through rooms and apply settings
@@ -224,7 +226,7 @@ def main():
 
 main()
 
-#  Schedule to run every 10 minutes
+#  Schedule to run every 5 minutes
 for minute in ["00:00", "05:00", "10:00", "15:00", "20:00", "25:00", "30:00", "35:00", "40:00", "45:00", "50:00", "55:00"]:
     schedule.every().hour.at(minute).do(main)
 

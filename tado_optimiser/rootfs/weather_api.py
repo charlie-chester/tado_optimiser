@@ -1,8 +1,11 @@
+import json
 import logging
 import time
+import os
 from datetime import datetime
 
 import requests
+
 from home_assistant_api import HomeAssistantAPI
 
 logger = logging.getLogger("tado_optimiser")
@@ -26,21 +29,63 @@ class WeatherAPI:
         self.latitude = latitude
         self.longitude = longitude
         self.weather_data = {}
+        self.weather_data_last_updated = ""
 
     def update_weather_data(self):
+        now = datetime.now()
+
+        # Checks to see if weather data files are present and if not runs plan to make new ones
+        if not os.path.exists("/config/weather_data.json") or not os.path.exists("/config/weather_data_last_updated.txt"):
+            logger.info(msg="Weather data backup files not present running plan to make new ones")
+            self.get_weather_data()
+
+        # If data files are present but no data in system load them
+        elif self.weather_data_last_updated == "" or self.weather_data == {}:
+            with open("/config/weather_data.json", "r") as f:
+                self.weather_data = json.load(f)
+            with open("/config/weather_data_last_updated.txt", "r") as f:
+                self.weather_data_last_updated = f.read()
+
+            logger.info(msg="Weather data loaded from backup files")
+
+            # Checks if backup weather data is older than 15 minutes and updates weather data
+            if (now - datetime.strptime(self.weather_data_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 60 * 15:
+                logger.info(msg="Backup weather data older than 15 minutes updating")
+                self.get_weather_data()
+    
+        # Checks if minute is either 0, 15, 30 or 45 and updates weather data
+        if now.minute % 15 == 0 and (now - datetime.strptime(self.weather_data_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 30:
+                self.get_weather_data()
+        else:
+            if (now - datetime.strptime(self.weather_data_last_updated, "%Y-%m-%d %H:%M:%S")).total_seconds() > 30:
+                logger.info(msg=f"Weather data not updated. Last updated: {self.weather_data_last_updated}")
+                self.current_weather()
+                self.hourly_entities()
+                self.daily_entities()
+            
+    def get_weather_data(self):
         # Updates weather data if it fails will stay in loop
-        logger.info(msg="Getting weather data")
         fullUrl = f"{self.base_url}lat={self.latitude}&lon={self.longitude}&appid={self.api_key}&units=metric"
         logger.debug(msg=f"Get weather data fullUrl: {fullUrl}")
         response = requests.get(fullUrl)
-        self.weather_data = response.json()
-
         status = response.status_code
+
         if status == 200:
-            logger.info(msg="Weather data successfully retrieved")
+            # Records weather data & timestamp
+            self.weather_data = response.json()
+            self.weather_data_last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Write formatted json to file & records timestamp
+            with open("/config/weather_data.json", "w") as f:
+                json.dump(self.weather_data, f, indent=4)
+            with open("/config/weather_data_last_updated.txt", "w") as f:
+                f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                
+            logger.info(msg=f"Weather data updated: {self.weather_data_last_updated}")
             self.current_weather()
             self.hourly_entities()
             self.daily_entities()
+            
         else:
             logger.error(msg=f"Error getting weather data. Status code: {status} Will try again in 30 minute")
             time.sleep(60 * 30)

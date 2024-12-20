@@ -11,7 +11,7 @@ If you think this may help you too, then feel free to install and help me test m
 To use Tado Optimiser, you need to have the following: -
 
 - [ ] A Tado system set up and the Tado Integration in Home Assistant.
-- [ ] An OpenWeather API 3.0 key. Available here https://openweathermap.org You will need to subscribe for a key. This is free and you'll get 10,000 calls per day. Make sure that when you get the key, you set the daily amount to 1000 or less to make sure.
+- [ ] An OpenWeather API 3.0 key. Available here https://openweathermap.org You will need to subscribe for a key. This is free and you'll get 1,000 calls per day. Make sure that when you get the key, you set the daily amount to 1,000 or less to make sure.
 - [ ] An Octopus account, and you know the API key and account number.
 - [ ] If using an Electric Override device, it must be able to be controlled using the hvac climate feature in Home Assistant.
 
@@ -20,7 +20,7 @@ To use Tado Optimiser, you need to have the following: -
 <img src="https://github.com/charlie-chester/tado_optimiser/blob/main/tado_optimiser/images/dash_1.png?raw=true" alt="Basic Dashboard" width="800">
 
 ### The way my system works: -
-- [ ] The logic runs every 10 minutes.
+- [ ] The logic runs every 5 minutes.
 - [ ] The OpenWeather API is called, and all the Hourly & Daily Entities are created in Home Assistant.
 - [ ] The Octopus API is called to find out your tariffs so the current Gas & Electricity price can be obtained. Entities are then created. In the illustration, I'm using Octopus Agile, but it should work with other tariffs.
 - [ ] Each room in your house is then evaluated to see if it needs heat. Considerations are made to the future outside air temperature and the price of the current Gas & Electricity. If Electricity is cheaper any Electrical Override set up will be used instead of the Gas.  
@@ -118,6 +118,14 @@ entities:
   - entity: sensor.agile_electricity_price_120
     secondary_info: last-updated
   - entity: sensor.agile_electricity_price_150
+    secondary_info: last-updated
+  - entity: sensor.agile_electricity_price_180
+    secondary_info: last-updated
+  - entity: sensor.agile_electricity_price_210
+    secondary_info: last-updated
+  - entity: sensor.agile_electricity_price_240
+    secondary_info: last-updated
+  - entity: sensor.agile_electricity_price_270
     secondary_info: last-updated
 title: Tado Optimiser Agile Prices
 ```

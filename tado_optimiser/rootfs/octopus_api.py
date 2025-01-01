@@ -205,7 +205,6 @@ class Octopus:
             # if the date is None, set it to a date in the future + 500 days
             if valid_to is None:
                 valid_to = now + timedelta(days=500)
-                valid_to = valid_to.strftime("%Y-%m-%d %H:%M:%S")
             else:
                 valid_to = datetime.strptime(rate["valid_to"], "%Y-%m-%dT%H:%M:%SZ")
 

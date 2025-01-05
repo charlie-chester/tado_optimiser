@@ -28,7 +28,7 @@ def copy_settings_file():
 
 def get_time_sector(sunrise, sunset):
     # Change sunset to 30 minutes before sunset
-    sunset = (datetime.combine(datetime.today(), sunset) - timedelta(minutes=30)).time()
+    sunset = (datetime.combine(datetime.today(), sunset) - timedelta(minutes=MINUTES_BEFORE_SUNSET)).time()
 
     if sunrise <= datetime.now().time() < sunset:
         time_sector = "day"
@@ -76,6 +76,9 @@ LONGITUDE = configurations.get("longitude")
 OPEN_WEATHER_API = configurations.get("open_weather_api")
 OCTOPUS_API = configurations.get("octopus_api")
 OCTOPUS_ACCOUNT = configurations.get("octopus_account")
+
+# Set other global variables
+MINUTES_BEFORE_SUNSET = 60
 
 # Set up the logger
 logger = logging.getLogger("tado_optimiser")

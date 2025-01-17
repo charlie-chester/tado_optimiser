@@ -12,14 +12,17 @@ logger = logging.getLogger("tado_optimiser")
 
 home_assistant = HomeAssistantAPI()
 
+def day_suffix(day):
+        return "th" if 11 <= day <= 13 else {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
+
 def convert_time(unix_time):
     readable_time = datetime.fromtimestamp(unix_time)
-    formatted_time = readable_time.strftime('%H:%M - %d %B %Y')
+    formatted_time = readable_time.strftime(f"%H:%M - %-d{day_suffix(day=readable_time.day)} %B %Y")
     return formatted_time
 
 def convert_time_date_only(unix_time):
     readable_time = datetime.fromtimestamp(unix_time)
-    formatted_time = readable_time.strftime('%d %B %Y')
+    formatted_time = readable_time.strftime(f"%A %-d{day_suffix(day=readable_time.day)} %B %Y")
     return formatted_time
 
 class WeatherAPI:

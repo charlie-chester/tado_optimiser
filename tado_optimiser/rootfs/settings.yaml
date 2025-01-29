@@ -1,55 +1,81 @@
 rooms:
   conservatory:
-    day: 18
-    evening: 18
-    night: 17
-    sun_correction: 2
-    electric_override: True
-    gas_radiator_power: 2800
-    electric_radiator_power: 2000
-    electric_radiator_name: conservatory_electric_radiator
-  dining_room:
-    day: 18
-    evening: 18
-    night: 17
-    sun_correction: 0
-    electric_override: False
-    gas_radiator_power: 0
-    electric_radiator_power: 0
-    electric_radiator_name:
-  lounge:
+    is_tado: True
+    gas_climate_entity: climate.conservatory
     day: 18
     evening: 20
     night: 17
-    sun_correction: 0
-    electric_override: False
-    gas_radiator_power: 0
-    electric_radiator_power: 0
-    electric_radiator_name:
+    electric_override: True
+    gas_radiator_power: 2800
+    electric_radiator_power: 2000
+    electric_climate_entity: climate.conservatory_electric_radiator
+  dining_room:
+    is_tado: True
+    gas_climate_entity: climate.dining_room
+    day: 18
+    evening: 20
+    night: 17
+    electric_override:
+    gas_radiator_power:
+    electric_radiator_power:
+    electric_climate_entity:
+  kitchen:
+    is_tado: True
+    gas_climate_entity: climate.kitchen
+    day: 18
+    evening: 18
+    night: 17
+    electric_override:
+    gas_radiator_power:
+    electric_radiator_power:
+    electric_climate_entity:
+  lounge:
+    is_tado: True
+    gas_climate_entity: climate.lounge
+    day: 18
+    evening: 20
+    night: 17
+    electric_override:
+    gas_radiator_power:
+    electric_radiator_power:
+    electric_climate_entity:
+  hall:
+    is_tado: False
+    gas_climate_entity: climate.hall_trv_thermostat
+    day: 17
+    evening: 17
+    night: 17
+    electric_override:
+    gas_radiator_power:
+    electric_radiator_power:
+    electric_climate_entity:
   office:
+    is_tado: True
+    gas_climate_entity: climate.office
     day: 17
     evening: 17
     night: 17
-    sun_correction: 0
-    electric_override: False
-    gas_radiator_power: 0
-    electric_radiator_power: 0
-    electric_radiator_name:
+    electric_override:
+    gas_radiator_power:
+    electric_radiator_power:
+    electric_climate_entity:
   bedroom:
+    is_tado: True
+    gas_climate_entity: climate.bedroom
     day: 17
     evening: 17
     night: 17
-    sun_correction: 0
-    electric_override: False
-    gas_radiator_power: 0
-    electric_radiator_power: 0
-    electric_radiator_name:
+    electric_override:
+    gas_radiator_power:
+    electric_radiator_power:
+    electric_climate_entity:
   pink_room:
+    is_tado: True
+    gas_climate_entity: climate.pink_room
     day: 17
     evening: 17
     night: 17
-    sun_correction: 0
-    electric_override: False
-    gas_radiator_power: 0
-    electric_radiator_power: 0
-    electric_radiator_name:
+    electric_override:
+    gas_radiator_power:
+    electric_radiator_power:
+    electric_climate_entity:

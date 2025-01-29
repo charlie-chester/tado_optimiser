@@ -8,12 +8,14 @@ I think Tado on its own is brilliant, and I am in no way saying that it's not.
 I've just added a couple of features that help me in my situation.
 If you think this may help you too, then feel free to install and help me test my coding.
 
+This will work with any Home Heating System that uses Smart TRV's that are controlled within Home Assistant with the "Climate" feature. When turned on or off they in turn within their own systems control the boiler. So with Tado for instance once a Radiator calls for heat Tado will activate the boiler, turning it on or off. If you only have "Sonoff" TRV's this addon will open the valve if heat is required but it won't fire up the boiler.
+
 To use Tado Optimiser, you need to have the following: -
 
-- [ ] A Tado system set up and the Tado Integration in Home Assistant.
+- [ ] A Tado system or similar set up with the ability to control the TRV's with the "climate" feature in Home Assistant.
 - [ ] An OpenWeather API 3.0 key. Available here https://openweathermap.org You will need to subscribe for a key. This is free and you'll get 1,000 calls per day. Make sure that when you get the key, you set the daily amount to 1,000 or less to make sure.
 - [ ] An Octopus account, and you know the API key and account number.
-- [ ] If using an Electric Override device, it must be able to be controlled using the hvac climate feature in Home Assistant.
+- [ ] If using an Electric Override device, it must be able to be controlled using the "climate" feature in Home Assistant.
 
 ### My basic dashboard.
 
@@ -29,8 +31,8 @@ To use Tado Optimiser, you need to have the following: -
 
 <img src="https://github.com/charlie-chester/tado_optimiser/blob/main/tado_optimiser/images/settings_1.png?raw=true" alt="Settings File" width="400">
 
-- [ ] Day is from Sunrise to Sunset.
-- [ ] Evening is Sunset to Midnight.
+- [ ] Day is from Sunrise to 60 minutes before Sunset.
+- [ ] Evening is 60 minutes before Sunset to Midnight.
 - [ ] Night is everything else.
 - [ ] Radiator power in watts.
 - [ ] Temperatures in centigrade.

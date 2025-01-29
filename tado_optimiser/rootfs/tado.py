@@ -12,60 +12,74 @@ logger = logging.getLogger("tado_optimiser")
 
 home_assistant = HomeAssistantAPI()
 
-
 # noinspection DuplicatedCode
 class Tado:
     def __init__(self, name):
         self.name = name
+
+        # Settings file
         self.settings = None
+        self.is_tado = None
+        self.gas_climate_entity = None
         self.day = None
         self.evening = None
         self.night = None
-        self.sun_correction = None
+        self.electric_override = "False"
+        self.gas_radiator_power = None
+        self.electric_radiator_power = None
+        self.electric_climate_entity = None
+
+        # Generic data
         self.climate_gas = None
+        self.current_temperature = None
+
+        # Tado data
         self.connectivity = None
         self.early_start = None
         self.heating = None
         self.humidity = None
         self.overlay = None
         self.power = None
-        self.tado_mode = None
-        self.temperature = None
+        self.tado_mode = "N/A"
         self.window = None
-        self.away_time = ""
-        self.electric_override = None
-        self.gas_radiator_power = None
-        self.electric_radiator_power = None
-        self.electric_radiator_name = None
-        self.climate_electric = None
 
+        # Electric data
+        self.climate_electric = None
+        
+        # Away data
+        self.away_time = ""
+        
     def update_tado_data(self):
         # Reloads the settings file then refreshes data
         self.settings = load_config(url="/config/settings.yaml")
+        self.is_tado = self.settings["rooms"][self.name]["is_tado"]
+        self.gas_climate_entity = self.settings["rooms"][self.name]["gas_climate_entity"]
         self.day = self.settings["rooms"][self.name]["day"]
         self.evening = self.settings["rooms"][self.name]["evening"]
-        self.night = self.settings["rooms"][self.name]["night"]
-        self.sun_correction = self.settings["rooms"][self.name]["sun_correction"]
+        self.night = self.settings["rooms"][self.name]["night"]   
         self.electric_override = self.settings["rooms"][self.name]["electric_override"]
         self.gas_radiator_power = self.settings["rooms"][self.name]["gas_radiator_power"]
         self.electric_radiator_power = self.settings["rooms"][self.name]["electric_radiator_power"]
-        self.electric_radiator_name = self.settings["rooms"][self.name]["electric_radiator_name"]
+        self.electric_climate_entity = self.settings["rooms"][self.name]["electric_climate_entity"]
+
+        # Gets generic data
+        self.climate_gas = home_assistant.get_entity_state(sensor=self.gas_climate_entity)
+        self.current_temperature = float(home_assistant.get_climate_current_temperature(sensor=self.gas_climate_entity))
 
         # Gets these values from Tado direct
-        self.climate_gas = home_assistant.get_entity_state(sensor=f"climate.{self.name}")
-        self.connectivity = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_connectivity")
-        self.early_start = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_early_start")
-        self.heating = home_assistant.get_entity_state(sensor=f"sensor.{self.name}_heating")
-        self.humidity = home_assistant.get_entity_state(sensor=f"sensor.{self.name}_humidity")
-        self.overlay = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_overlay")
-        self.power = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_power")
-        self.tado_mode = home_assistant.get_entity_state(sensor=f"sensor.{self.name}_tado_mode")
-        self.temperature = float(home_assistant.get_entity_state(sensor=f"sensor.{self.name}_temperature"))
-        self.window = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_window")
+        if self.is_tado:
+            self.connectivity = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_connectivity")
+            self.early_start = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_early_start")
+            self.heating = home_assistant.get_entity_state(sensor=f"sensor.{self.name}_heating")
+            self.humidity = home_assistant.get_entity_state(sensor=f"sensor.{self.name}_humidity")
+            self.overlay = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_overlay")
+            self.power = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_power")
+            self.tado_mode = home_assistant.get_entity_state(sensor=f"sensor.{self.name}_tado_mode")
+            self.window = home_assistant.get_entity_state(sensor=f"binary_sensor.{self.name}_window")
 
         # Gets these values from electric alternative
         if self.electric_override:
-            self.climate_electric = home_assistant.get_entity_state(sensor=f"climate.{self.electric_radiator_name}")
+            self.climate_electric = home_assistant.get_entity_state(sensor=self.electric_climate_entity)
 
     def calculate_break_even_price(self, gas_price):
         # Calculates the break-even price for electricity to be cheaper than gas
@@ -98,55 +112,58 @@ class Tado:
             logger.info(msg=f"Temp Hour 0: {temp_hour_0:.2f} or Temp Hour 1: {temp_hour_1:.2f} is the same or higher than the Target Temperature {target_temperature:.2f}")
 
             if self.climate_gas != "off":
-                home_assistant.set_hvac_mode(entity_id=f"climate.{self.name}", hvac_mode="off")
+                home_assistant.set_hvac_mode(entity_id=self.gas_climate_entity, hvac_mode="off")
             if self.electric_override:
                 if self.climate_electric != "off":
-                    home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="off")
+                    home_assistant.set_hvac_mode(entity_id=self.electric_climate_entity, hvac_mode="off")
 
             logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to OFF")
 
         # If the room temperature has met the target temperature turn off heating
-        elif self.temperature >= target_temperature:
-            if self.temperature == target_temperature:
-                logger.info(msg=f"The Actual Temperature {self.temperature:.2f} is the same as the Target Temperature {target_temperature:.2f}")
+        elif self.current_temperature >= target_temperature:
+            if self.current_temperature == target_temperature:
+                logger.info(msg=f"The Actual Temperature {self.current_temperature:.2f} is the same as the Target Temperature {target_temperature:.2f}")
             else:
-                logger.info(msg=f"The Actual Temperature {self.temperature:.2f} is higher than the Target Temperature {target_temperature:.2f}")
+                logger.info(msg=f"The Actual Temperature {self.current_temperature:.2f} is higher than the Target Temperature {target_temperature:.2f}")
 
             if self.climate_gas != "off":
-                home_assistant.set_hvac_mode(entity_id=f"climate.{self.name}", hvac_mode="off")
+                home_assistant.set_hvac_mode(entity_id=self.gas_climate_entity, hvac_mode="off")
             if self.electric_override:
                 if self.climate_electric != "off":
-                    home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="off")
+                    home_assistant.set_hvac_mode(entity_id=self.electric_climate_entity, hvac_mode="off")
 
             logger.info(msg=f"{self.name.upper().replace('_', ' ')} set to OFF")
 
         # If the above 2 fail then it must mean heating is required
         else:
-            logger.info(msg=f"The Actual Temperature {self.temperature:.2f} is lower than the Target Temperature {target_temperature:.2f}")
+            logger.info(msg=f"The Actual Temperature {self.current_temperature:.2f} is lower than the Target Temperature {target_temperature:.2f}")
 
             # Checks if you should use electricity and then turns on electricity
             if self.should_use_electric_override(electric_price=electric_price, gas_price=gas_price, using_grid=using_grid):
                 if self.climate_gas != "off":
-                    home_assistant.set_hvac_mode(entity_id=f"climate.{self.name}", hvac_mode="off")
+                    home_assistant.set_hvac_mode(entity_id=self.gas_climate_entity, hvac_mode="off")
 
-                home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="heat")
-                home_assistant.set_temperature(entity_id=f"climate.{self.electric_radiator_name}", temperature=target_temperature)
+                home_assistant.set_hvac_mode(entity_id=self.electric_climate_entity, hvac_mode="heat")
+                home_assistant.set_temperature(entity_id=self.electric_climate_entity, temperature=target_temperature)
                 logger.info(msg=f"{self.name.upper().replace('_', ' ')} using Electricity set to {target_temperature:.2f}")
 
             # If electric override not possible or electricity not cheaper turn on gas
             else:
                 if self.electric_override:
                     if self.climate_electric != "off":
-                        home_assistant.set_hvac_mode(entity_id=f"climate.{self.electric_radiator_name}", hvac_mode="off")
+                        home_assistant.set_hvac_mode(entity_id=self.electric_climate_entity, hvac_mode="off")
 
-                home_assistant.set_temperature(entity_id=f"climate.{self.name}", temperature=target_temperature)
+                if not self.is_tado:
+                    home_assistant.set_hvac_mode(entity_id=self.gas_climate_entity, hvac_mode="heat")
+
+                home_assistant.set_temperature(entity_id=self.gas_climate_entity, temperature=target_temperature)
                 logger.info(msg=f"{self.name.upper().replace('_', ' ')} using Gas set to {target_temperature:.2f}")
 
     def away_adjust(self, target_temperature):
         now = datetime.now()
 
         # If in HOME mode return no reduction
-        if self.tado_mode == "HOME":
+        if self.tado_mode != "AWAY":
             self.away_time = ""
             return 0
 

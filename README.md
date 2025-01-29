@@ -8,7 +8,7 @@ I think Tado on its own is brilliant, and I am in no way saying that it's not.
 I've just added a couple of features that help me in my situation.
 If you think this may help you too, then feel free to install and help me test my coding.
 
-This will now work with any Home Heating System that uses Smart TRV's that are controlled within Home Assistant with the "Climate" feature. It works by controlling them. They then in turn within their own systems control the boiler. So with Tado for instance once a Radiator calls for heat Tado will activate the boiler. If you only have "Sonoff" TRV's then this will open the valve if heat is required but it wont fire up the boiler as yet!!
+This will work with any Home Heating System that uses Smart TRV's that are controlled within Home Assistant with the "Climate" feature. When turned on or off they in turn within their own systems control the boiler. So with Tado for instance once a Radiator calls for heat Tado will activate the boiler, turning it on or off. If you only have "Sonoff" TRV's this addon will open the valve if heat is required but it won't fire up the boiler.
 
 To use Tado Optimiser, you need to have the following: -
 

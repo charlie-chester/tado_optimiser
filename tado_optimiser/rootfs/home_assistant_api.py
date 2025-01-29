@@ -35,6 +35,18 @@ class HomeAssistantAPI:
         else:
             logger.error(msg=f"Error getting entity: {sensor}")
             return "Entity not found"
+        
+    def get_climate_current_temperature(self, sensor):
+        full_url = f"{self.base_url}/states/{sensor}"
+        response = requests.get(full_url, headers=self.headers)
+
+        if response.status_code == 200:
+            logger.debug(msg=f"Entity found: {sensor}")
+            current_temperature = response.json()["attributes"]["current_temperature"]
+            return current_temperature
+        else:
+            logger.error(msg=f"Error getting entity: {sensor}")
+            return "Entity not found"
 
     def set_hvac_mode(self, entity_id, hvac_mode):
         full_url = f"{self.base_url}/services/climate/set_hvac_mode"

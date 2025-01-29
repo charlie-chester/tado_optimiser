@@ -8,12 +8,14 @@ I think Tado on its own is brilliant, and I am in no way saying that it's not.
 I've just added a couple of features that help me in my situation.
 If you think this may help you too, then feel free to install and help me test my coding.
 
+This will now work with any Home Heating System that uses Smart TRV's that are controlled within Home Assistant with the "Climate" feature. It works by controlling them. They then in turn within their own systems control the boiler. So with Tado for instance once a Radiator calls for heat Tado will activate the boiler. If you only have "Sonoff" TRV's then this will open the valve if heat is required but it wont fire up the boiler as yet!!
+
 To use Tado Optimiser, you need to have the following: -
 
-- [ ] A Tado system set up and the Tado Integration in Home Assistant.
+- [ ] A Tado system or similar set up with the ability to control the TRV's with the "climate" feature in Home Assistant.
 - [ ] An OpenWeather API 3.0 key. Available here https://openweathermap.org You will need to subscribe for a key. This is free and you'll get 1,000 calls per day. Make sure that when you get the key, you set the daily amount to 1,000 or less to make sure.
 - [ ] An Octopus account, and you know the API key and account number.
-- [ ] If using an Electric Override device, it must be able to be controlled using the hvac climate feature in Home Assistant.
+- [ ] If using an Electric Override device, it must be able to be controlled using the "climate" feature in Home Assistant.
 
 ### My basic dashboard.
 
@@ -22,15 +24,15 @@ To use Tado Optimiser, you need to have the following: -
 ### The way my system works: -
 - [ ] The logic runs every 5 minutes.
 - [ ] The OpenWeather API is called, and all the Hourly & Daily Entities are created in Home Assistant.
-- [ ] The Octopus API is called to find out your tariffs so the current Gas & Electricity price can be obtained. Entities are then created. In the illustration, I'm using Octopus Agile, but it should work with other tariffs.
-- [ ] Each room in your house is then evaluated to see if it needs heat. Considerations are made to the future outside air temperature and the price of the current Gas & Electricity. If Electricity is cheaper any Electrical Override set up will be used instead of the Gas.  
+- [ ] The Octopus API is called to find out your tariffs so the current Gas & Electricity price can be obtained. Entities are then created. In the illustration, I'm using Octopus Agile, but it should work with other tariffs within Octopus.
+- [ ] Each room in your house is then evaluated to see if it needs heat. Considerations are made to the future outside air temperature and the price of the current Gas & Electricity. If Electricity is cheaper any Electrical Override set up will be used instead of the Gas. The electric override will only be used if the system is currently using the grid. This was added so it wouldn't interrupt Predbat. 
 
 ### The Settings file
 
 <img src="https://github.com/charlie-chester/tado_optimiser/blob/main/tado_optimiser/images/settings_1.png?raw=true" alt="Settings File" width="400">
 
-- [ ] Day is from Sunrise to Sunset.
-- [ ] Evening is Sunset to Midnight.
+- [ ] Day is from Sunrise to 60 minutes before Sunset.
+- [ ] Evening is 60 minutes before Sunset to Midnight.
 - [ ] Night is everything else.
 - [ ] Radiator power in watts.
 - [ ] Temperatures in centigrade.

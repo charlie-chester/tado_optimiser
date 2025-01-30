@@ -1,14 +1,19 @@
 #  Tado Optimiser
 ## Tado Optimiser Add-on
 
-In an attempt to learn how to "Code" and especially "Code"
-an addon for Home Assistant, I came up with the idea to make my Tado system better.
+In an effort to learn how to code—especially to develop a Home Assistant addon—I came up with the idea of improving my Tado system.
 
-I think Tado on its own is brilliant, and I am in no way saying that it's not.
-I've just added a couple of features that help me in my situation.
-If you think this may help you too, then feel free to install and help me test my coding.
+I’ve added features that help in my specific situation. If you think they might benefit you too, feel free to install the addon and help me test my coding.
 
-This will work with any Home Heating System that uses Smart TRV's that are controlled within Home Assistant with the "Climate" feature. When turned on or off they in turn within their own systems control the boiler. So with Tado for instance once a Radiator calls for heat Tado will activate the boiler, turning it on or off. If you only have "Sonoff" TRV's this addon will open the valve if heat is required but it won't fire up the boiler.
+This addon works with any home heating system that uses smart TRVs controlled within Home Assistant via the “Climate” feature. When a radiator calls for heat, its system automatically controls the boiler—just like with Tado, where activating a TRV triggers the boiler to turn on or off.
+
+If you only have Sonoff TRVs, this addon will open the valve when heat is required, but it won’t be able to fire up the boiler.
+
+Additionally, the addon allows you to control an electric radiator (also managed in Home Assistant via the “Climate” feature), providing the option to use electricity instead of gas when prices are cheaper.
+
+While you could use this addon to control all your TRVs, the best approach might be to include only those that you would want to switch to electric heating as an override.
+
+In my setup, I have eight Tado TRVs. I let Tado manage seven of them, but for my conservatory, I’ve set up an electric radiator. This setup allows me to take advantage of lower electricity prices at night.
 
 To use Tado Optimiser, you need to have the following: -
 

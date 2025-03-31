@@ -191,7 +191,7 @@ def main():
         target_temperature = getattr(room, time_sector)
 
         # Log initial entries
-        logger.info(msg=f"Temperature: {room.current_temperature:.2f} | Climate: {room.climate_gas.upper()} | Tado Mode: {room.tado_mode.upper()} | Electric Override: {str(room.electric_override).upper()}")
+        logger.info(msg=f"Temperature: {room.temperature:.2f} | Climate: {room.climate_gas.upper()} | Mode: {room.tado_mode.upper()} | Electric Override: {str(room.electric_override).upper()}")
         logger.info(msg=f"Outside Temperatures in the next 3 hours: {temp_hour_0:.2f} | {temp_hour_1:.2f} | {temp_hour_2:.2f}")
         logger.info(msg=f"Sunrise: {sunrise} | Sunset: {sunset} | Solar Percentage: {solar_percentage} %")
         logger.info(msg=f"Current weather - ID: {current_weather_id} | Condition: {current_weather_condition}")

@@ -142,7 +142,13 @@ class Octopus:
             if not meter["is_export"]:
                 for agreement in meter["agreements"]:
                     valid_from = datetime.strptime(agreement["valid_from"][:10], "%Y-%m-%d").date()
-                    valid_to = datetime.strptime(agreement["valid_to"][:10], "%Y-%m-%d").date()
+                    valid_to = agreement["valid_to"]
+
+                    # if the date is None, set it to a date in the future + 500 days
+                    if valid_to is None:
+                        valid_to = (datetime.now() + timedelta(days=500)).date()
+                    else:
+                        valid_to = datetime.strptime(agreement["valid_to"][:10], "%Y-%m-%d").date()
 
                     if valid_from < datetime.now().date() < valid_to:
                         tariff_code = agreement["tariff_code"]

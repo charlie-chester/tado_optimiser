@@ -169,11 +169,20 @@ class Octopus:
 
     def get_gas_rates(self):
         # Gets gas rates from account details
+        now = datetime.now()
         for agreement in self.account_data["properties"][0]["gas_meter_points"][0]["agreements"]:
             valid_from = datetime.strptime(agreement["valid_from"][:10], "%Y-%m-%d").date()
             valid_to = agreement["valid_to"]
 
-            if valid_from < datetime.now().date() and valid_to is None:
+            # if the date is None, set it to a date in the future + 500 days
+            if valid_to is None:
+                valid_to = now + timedelta(days=500)
+            else:
+                valid_to = datetime.strptime(agreement["valid_to"][:10], "%Y-%m-%d").date()
+
+            logger.debug(msg=f"Valid from: {valid_from} - Valid to: {valid_to}")
+
+            if valid_from < datetime.now().date() < valid_to:
                 tariff_code = agreement["tariff_code"]
                 product_code = tariff_code[5:-2]
                 end_point = f"/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates/"
@@ -216,8 +225,9 @@ class Octopus:
 
             logger.debug(msg=f"Valid from: {valid_from} - Valid to: {valid_to} - Payment method: {payment_method}")
             
-            if valid_from <= now < valid_to and payment_method == "DIRECT_DEBIT":
-                return rate["value_inc_vat"]
+            if valid_from <= now < valid_to:
+                if payment_method == "DIRECT_DEBIT" or payment_method is None:
+                    return rate["value_inc_vat"]
 
     def update_agile_entities(self):
         # Creates / updates entities

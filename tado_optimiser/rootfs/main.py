@@ -187,6 +187,8 @@ def main():
         # Refresh data
         room.update_tado_data()
 
+        # TODO: Add logic to handle cases where room data is not available
+
         # Get target room temperature
         target_temperature = getattr(room, time_sector)
 

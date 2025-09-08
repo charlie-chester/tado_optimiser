@@ -150,7 +150,7 @@ class Octopus:
                     else:
                         valid_to = datetime.strptime(agreement["valid_to"][:10], "%Y-%m-%d").date()
 
-                    if valid_from < datetime.now().date() < valid_to:
+                    if valid_from <= datetime.now().date() < valid_to:
                         tariff_code = agreement["tariff_code"]
                         product_code = tariff_code[5:-2]
                         end_point = f"/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates/"
@@ -182,7 +182,7 @@ class Octopus:
 
             logger.debug(msg=f"Valid from: {valid_from} - Valid to: {valid_to}")
 
-            if valid_from < datetime.now().date() < valid_to:
+            if valid_from <= datetime.now().date() < valid_to:
                 tariff_code = agreement["tariff_code"]
                 product_code = tariff_code[5:-2]
                 end_point = f"/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates/"

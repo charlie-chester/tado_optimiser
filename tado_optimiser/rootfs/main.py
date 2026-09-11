@@ -138,10 +138,10 @@ def main():
     solar_percentage = home_assistant.get_entity_state(sensor="sensor.home_solar_percentage")
 
     # Gets Electricity and gas prices
-    electric_price, time_from, time_to = octopus.get_current_electricity_price(offset=0)
+    electric_price, valid_from, valid_to = octopus.get_current_electricity_price(offset=0)
     electric_price = float(electric_price)
     gas_price = float(octopus.get_current_gas_price())
-    logger.info(msg=f"Electricity Price: {electric_price} - {time_from[11:16]} ~ {time_to[11:16]} | Gas Price: {gas_price}")
+    logger.info(msg=f"Electricity Price: {electric_price} - {valid_from} ~ {valid_to} | Gas Price: {gas_price}")
 
     # Check if system is using the Grid & Predbat Status
     grid_power = home_assistant.get_entity_state(sensor="sensor.givtcp_fd2327g123_grid_power")
@@ -187,7 +187,11 @@ def main():
         # Refresh data
         room.update_tado_data()
 
-        # TODO: Add logic to handle cases where room data is not available
+        # Logic to handle cases where room data is not available
+        if room.current_temperature == 99999:
+            logger.error(msg="No data available. Skipping...")
+            log_line_break()
+            continue
 
         # Get target room temperature
         target_temperature = getattr(room, time_sector)

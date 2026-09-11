@@ -3,6 +3,7 @@ import logging
 import os
 import time
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -12,6 +13,13 @@ from home_assistant_api import HomeAssistantAPI
 logger = logging.getLogger("tado_optimiser")
 
 home_assistant = HomeAssistantAPI()
+
+def zulu_time_to_uk_time(zulu_time):
+    # Parse the ISO format string and convert to UK timezone
+    utc_time = datetime.fromisoformat(zulu_time.replace("Z", "+00:00"))
+    uk_time = utc_time.astimezone(ZoneInfo("Europe/London"))
+    return uk_time
+
 
 class Octopus:
     def __init__(self, octopus_api, octopus_account):
@@ -200,14 +208,34 @@ class Octopus:
 
     def get_current_electricity_price(self, offset):
         # Gets the Agile price based on the offset passed
-        now = datetime.now()
+        now = datetime.now(ZoneInfo("Europe/London"))
+        
+        # Add debugging to understand what data we have
+        logger.debug(msg=f"Agile rates data structure: {type(self.agile_rates)}")
+        if isinstance(self.agile_rates, dict):
+            logger.debug(msg=f"Agile rates keys: {list(self.agile_rates.keys())}")
+            if "results" in self.agile_rates:
+                logger.debug(msg=f"Number of rates in results: {len(self.agile_rates['results'])}")
+                if len(self.agile_rates['results']) > 0:
+                    logger.debug(msg=f"First rate sample: {self.agile_rates['results'][0]}")
+            else:
+                logger.error(msg="No 'results' key found in agile_rates data")
+                return None, None, None
+        else:
+            logger.error(msg=f"agile_rates is not a dictionary: {self.agile_rates}")
+            return None, None, None
+            
         for rate in self.agile_rates["results"]:
-            valid_from = datetime.strptime(rate["valid_from"], "%Y-%m-%dT%H:%M:%SZ")
-            valid_to = datetime.strptime(rate["valid_to"], "%Y-%m-%dT%H:%M:%SZ")
+            valid_from = zulu_time_to_uk_time(zulu_time=rate["valid_from"])
+            valid_to = zulu_time_to_uk_time(zulu_time=rate["valid_to"])
 
             if valid_from <= (now + timedelta(minutes=offset)) < valid_to:
-                logger.debug(msg=f"Price: {rate['value_inc_vat']} - From: {rate['valid_from'][:-1].replace('T', ' ')} To: {rate['valid_to'][:-1].replace('T', ' ')}")
-                return rate["value_inc_vat"], rate["valid_from"], rate["valid_to"]
+                logger.debug(msg=f"Price: {rate['value_inc_vat']} - From: {valid_from.strftime('%H:%M')} To: {valid_to.strftime('%H:%M')}")
+                return rate["value_inc_vat"], valid_from.strftime("%H:%M"), valid_to.strftime("%H:%M")
+        
+        # Return None values if no matching rate is found
+        logger.warning(msg=f"No electricity price found for offset {offset} minutes. Current time: {now}, Target time: {now + timedelta(minutes=offset)}")
+        return None, None, None
 
     def get_current_gas_price(self):
         # Gets the current gas price
@@ -232,13 +260,19 @@ class Octopus:
     def update_agile_entities(self):
         # Creates / updates entities
         for offset in range(0, 271, 30):
-            price, time_from, time_to = self.get_current_electricity_price(offset=offset)
+            electric_price, valid_from, valid_to = self.get_current_electricity_price(offset=offset)
+            
+            # Skip creating entity if no price data is available
+            if electric_price is None:
+                logger.warning(msg=f"Skipping entity creation for offset {offset} - no price data available")
+                continue
+                
             sensor = f"sensor.agile_electricity_price_{offset}"
             payload = {
-                "state": price,
+                "state": electric_price,
                 "attributes": {
                     "unit_of_measurement": "p",
-                    "friendly_name": f"{time_from[11:16]} - {time_to[11:16]}",
+                    "friendly_name": f"{valid_from} - {valid_to}",
                     "icon": "mdi:currency-gbp",
                 }
             }
